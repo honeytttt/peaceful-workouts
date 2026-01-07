@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Peaceful Workouts - Share your mindful exercise experiences">
+  
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="peaceful_workouts">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <!-- GOOGLE SIGN-IN META TAG (CRITICAL) -->
+  <meta name="google-signin-client_id" content="1008908513514-f2b4969b4c7a691a3f2793.apps.googleusercontent.com">
+  
+  <title>Peaceful Workouts</title>
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC5hHDwu9o46O42C_k8ZnnT50gW7ygmFs4",
+      authDomain: "peacefulworkouts.firebaseapp.com",
+      projectId: "peacefulworkouts",
+      storageBucket: "peacefulworkouts.appspot.com",
+      messagingSenderId: "1008908513514",
+      appId: "1:1008908513514:web:f2b4969b4c7a691a3f2793",
+      measurementId: "G-JREFGTKYH4"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    
+    console.log('Firebase initialized for web');
+  </script>
+  
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
