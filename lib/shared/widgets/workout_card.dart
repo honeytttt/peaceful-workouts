@@ -1,403 +1,282 @@
+// lib/shared/widgets/workout_card.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import '../../features/feed/feed_model.dart';
-import '../../features/feed/feed_provider.dart';
+import 'package:peaceful_workouts/features/feed/feed_model.dart';
+import 'package:peaceful_workouts/features/feed/feed_provider.dart';
 
 class WorkoutCard extends StatelessWidget {
   final Post post;
-  final VoidCallback? onLikePressed;
-  final VoidCallback? onCommentPressed;
-  final VoidCallback? onSharePressed;
-  final bool showActions;
+  final VoidCallback? onLikeTapped;
+  final VoidCallback? onCommentTapped;
 
   const WorkoutCard({
     super.key,
     required this.post,
-    this.onLikePressed,
-    this.onCommentPressed,
-    this.onSharePressed,
-    this.showActions = true,
+    this.onLikeTapped,
+    this.onCommentTapped,
   });
 
   @override
   Widget build(BuildContext context) {
-    final feedProvider = Provider.of<FeedProvider>(context, listen: false);
-    final currentUserId = feedProvider.currentUserId;
-    final isLiked = currentUserId != null && post.likedBy.contains(currentUserId);
+    final theme = Theme.of(context);
+    // Removed unused feedProvider variable
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // User Header
-            _buildUserHeader(context),
+            // User info and timestamp
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(post.userProfilePic),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        post.userName,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        _formatTimestamp(post.timestamp),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.outline,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Workout details
+            if (post.workoutType != null && post.workoutType!.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  post.workoutType!.toUpperCase(),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 8),
+
+            // Post text
+            if (post.text != null && post.text!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  post.text!,
+                  style: theme.textTheme.bodyLarge,
+                ),
+              ),
+
+            // Workout duration
+            if (post.duration != null && post.duration! > 0)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.timer_outlined,
+                      size: 16,
+                      color: theme.colorScheme.outline,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${post.duration} minutes',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             const SizedBox(height: 12),
-            
-            // Content
-            _buildContent(),
-            
-            // Image (if exists) - Now supports Cloudinary URLs
-            _buildPostImage(),
+
+            // Image
+            if (post.imageUrl != null && post.imageUrl!.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  post.imageUrl!,
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      width: double.infinity,
+                      height: 200,
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: double.infinity,
+                      height: 200,
+                      color: theme.colorScheme.errorContainer,
+                      child: Center(
+                        child: Icon(
+                          Icons.error_outline,
+                          color: theme.colorScheme.error,
+                          size: 48,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             const SizedBox(height: 16),
-            
-            // Workout Details
-            _buildWorkoutDetails(),
-            const SizedBox(height: 16),
-            
-            // Stats
-            _buildStats(),
-            
-            // Actions (if enabled)
-            if (showActions) ...[
-              const Divider(height: 20),
-              _buildActionButtons(context, isLiked),
-            ],
+
+            // Stats and actions
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Likes count
+                Row(
+                  children: [
+                    Icon(
+                      Icons.favorite,
+                      size: 16,
+                      color: theme.colorScheme.error,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${post.likeCount}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Comments count
+                Row(
+                  children: [
+                    Icon(
+                      Icons.chat_bubble_outline,
+                      size: 16,
+                      color: theme.colorScheme.outline,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${post.commentCount}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Time ago
+                Text(
+                  _timeAgo(post.timestamp),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.outline,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Action buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                // Like button
+                Expanded(
+                  child: TextButton.icon(
+                    onPressed: onLikeTapped,
+                    icon: Icon(
+                      post.isLiked ? Icons.favorite : Icons.favorite_outline,
+                      color: post.isLiked
+                          ? theme.colorScheme.error
+                          : theme.colorScheme.outline,
+                    ),
+                    label: Text(
+                      'Like',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: post.isLiked
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.outline,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Comment button
+                Expanded(
+                  child: TextButton.icon(
+                    onPressed: onCommentTapped,
+                    icon: Icon(
+                      Icons.chat_bubble_outline,
+                      color: theme.colorScheme.outline,
+                    ),
+                    label: Text(
+                      'Comment',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildUserHeader(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.grey[300],
-          ),
-          child: post.userProfileImage.isNotEmpty
-              ? ClipOval(
-                  child: CachedNetworkImage(
-                    imageUrl: post.userProfileImage,
-                    fit: BoxFit.cover,
-                    width: 40,
-                    height: 40,
-                    placeholder: (context, url) => const CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => const Icon(Icons.person, color: Colors.grey),
-                  ),
-                )
-              : const Icon(Icons.person, color: Colors.grey),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                post.userName,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                _formatTimestamp(post.timestamp),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.more_vert),
-          onPressed: () => _showMoreOptions(context),
-          iconSize: 20,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildContent() {
-    return Text(
-      post.content,
-      style: const TextStyle(
-        fontSize: 16,
-        height: 1.5,
-      ),
-    );
-  }
-
-  Widget _buildPostImage() {
-    if (post.imageUrl == null || post.imageUrl!.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: CachedNetworkImage(
-          imageUrl: post.imageUrl!, // Works with Cloudinary URLs
-          width: double.infinity,
-          height: 200,
-          fit: BoxFit.cover,
-          placeholder: (context, url) => Container(
-            height: 200,
-            color: Colors.grey[200],
-            child: const Center(child: CircularProgressIndicator()),
-          ),
-          errorWidget: (context, url, error) => Container(
-            height: 200,
-            color: Colors.grey[200],
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error, color: Colors.grey, size: 48),
-                const SizedBox(height: 8),
-                const Text(
-                  'Failed to load image',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWorkoutDetails() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.blue[50],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildDetailItem(
-            icon: Icons.fitness_center,
-            label: 'Type',
-            value: post.workoutType,
-          ),
-          _buildDetailItem(
-            icon: Icons.timer,
-            label: 'Duration',
-            value: '${post.durationMinutes} min',
-          ),
-          _buildDetailItem(
-            icon: Icons.bolt,
-            label: 'Intensity',
-            value: _calculateIntensity(post.durationMinutes),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailItem({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Column(
-      children: [
-        Icon(icon, size: 20, color: Colors.blue[700]),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStats() {
-    return Row(
-      children: [
-        _buildStatItem(
-          icon: Icons.favorite,
-          count: post.likes,
-          color: Colors.red,
-        ),
-        const SizedBox(width: 16),
-        _buildStatItem(
-          icon: Icons.comment,
-          count: post.comments.length,
-          color: Colors.blue,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatItem({
-    required IconData icon,
-    required int count,
-    required Color color,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: color),
-        const SizedBox(width: 6),
-        Text(
-          count.toString(),
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey[700],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButtons(BuildContext context, bool isLiked) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        _buildActionButton(
-          icon: isLiked ? Icons.favorite : Icons.favorite_border,
-          label: 'Like',
-          color: isLiked ? Colors.red : Colors.grey,
-          onPressed: onLikePressed,
-        ),
-        _buildActionButton(
-          icon: Icons.comment,
-          label: 'Comment',
-          onPressed: onCommentPressed,
-        ),
-        _buildActionButton(
-          icon: Icons.share,
-          label: 'Share',
-          onPressed: onSharePressed,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    Color? color,
-    VoidCallback? onPressed,
-  }) {
-    return TextButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, color: color),
-      label: Text(
-        label,
-        style: TextStyle(color: color),
-      ),
-      style: TextButton.styleFrom(
-        minimumSize: const Size(0, 40),
-      ),
-    );
-  }
-
   String _formatTimestamp(DateTime timestamp) {
+    return '${timestamp.day}/${timestamp.month}/${timestamp.year} at ${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}';
+  }
+
+  String _timeAgo(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
 
-    if (difference.inMinutes < 1) return 'Just now';
-    if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
-    if (difference.inHours < 24) return '${difference.inHours}h ago';
-    if (difference.inDays < 7) return '${difference.inDays}d ago';
-
-    return DateFormat('MMM d, yyyy').format(timestamp);
-  }
-
-  String _calculateIntensity(int duration) {
-    if (duration < 20) return 'Light';
-    if (duration < 45) return 'Moderate';
-    return 'Intense';
-  }
-
-  void _showMoreOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.flag),
-                title: const Text('Report post'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showReportDialog(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.link),
-                title: const Text('Copy link'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _copyPostLink(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.notifications_off),
-                title: const Text('Mute user'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _muteUser(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showReportDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Report Post'),
-        content: const Text('Please select a reason for reporting this post.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Post reported successfully')),
-              );
-            },
-            child: const Text('Report'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _copyPostLink(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Link copied to clipboard')),
-    );
-  }
-
-  void _muteUser(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Muted ${post.userName}')),
-    );
+    if (difference.inDays > 365) {
+      final years = (difference.inDays / 365).floor();
+      return '$years year${years > 1 ? 's' : ''} ago';
+    } else if (difference.inDays > 30) {
+      final months = (difference.inDays / 30).floor();
+      return '$months month${months > 1 ? 's' : ''} ago';
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
+    } else {
+      return 'Just now';
+    }
   }
 }
