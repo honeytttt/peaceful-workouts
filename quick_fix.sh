@@ -1,3 +1,12 @@
+#!/bin/bash
+# quick_fix.sh
+# Quick fix for the like error
+
+echo "⚡ QUICK FIX FOR LIKE ERROR..."
+echo "=============================="
+
+# Create a minimal fix
+cat > lib/features/feed/feed_service.dart << 'EOF'
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'feed_model.dart';
 
@@ -46,3 +55,13 @@ class FeedService {
 
   // ... other methods stay the same
 }
+EOF
+
+echo ""
+echo "✅ QUICK FIX APPLIED"
+echo "===================="
+echo "This fix just increments likeCount without tracking per-user likes."
+echo "Good for testing Phase 3 comment feature."
+echo ""
+echo "🔍 Testing..."
+dart analyze lib/features/feed/feed_service.dart

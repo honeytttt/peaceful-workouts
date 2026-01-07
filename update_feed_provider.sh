@@ -1,3 +1,11 @@
+#!/bin/bash
+# update_feed_provider.sh
+# Update FeedProvider for simple like
+
+echo "🔄 UPDATING FeedProvider..."
+echo "==========================="
+
+cat > lib/features/feed/feed_provider.dart << 'EOF'
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'feed_service.dart';
@@ -90,3 +98,12 @@ class FeedProvider with ChangeNotifier {
     notifyListeners();
   }
 }
+EOF
+
+echo ""
+echo "✅ FeedProvider UPDATED"
+echo "======================="
+echo "Simplified for quick testing."
+echo ""
+echo "🚀 NOW TEST THE APP:"
+echo "flutter run -d chrome"

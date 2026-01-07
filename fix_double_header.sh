@@ -1,3 +1,12 @@
+#!/bin/bash
+# fix_double_header.sh
+# Fix the double AppBar issue
+
+echo "🔧 FIXING DOUBLE HEADER..."
+echo "==========================="
+
+# Create simplified app.dart without nested AppBars
+cat > lib/app.dart << 'EOF'
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:peaceful_workouts/core/auth/auth_provider.dart';
@@ -78,3 +87,9 @@ class HomeScreen extends StatelessWidget {
     return const FeedScreen();  // FeedScreen now has its own AppBar with logout
   }
 }
+EOF
+
+echo ""
+echo "✅ SIMPLIFIED APP STRUCTURE"
+echo "==========================="
+echo "Now using HomeScreen → FeedScreen (single AppBar)"

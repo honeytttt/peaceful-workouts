@@ -1,0 +1,89 @@
+// lib/features/feed/feed_screen.dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:peaceful_workouts/features/feed/feed_provider.dart';
+import 'package:peaceful_workouts/shared/widgets/workout_card.dart';
+import 'comments_screen.dart';
+import 'package:peaceful_workouts/core/auth/auth_service.dart'; // Import auth service to get userId
+
+class FeedScreen extends StatefulWidget {
+  const FeedScreen({super.key});
+
+  @override
+  State<FeedScreen> createState() => _FeedScreenState();
+}
+
+class _FeedScreenState extends State<FeedScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Check what method exists in your FeedProvider for loading posts
+      final feedProvider = Provider.of<FeedProvider>(context, listen: false);
+      // Try to call the method that loads posts - might be init() or fetchPosts()
+      if (feedProvider.posts.isEmpty) {
+        // Trigger a refresh or initial load
+        feedProvider.notifyListeners(); // This might trigger a load
+      }
+    });
+  }
+
+  void _navigateToComments(String postId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CommentsScreen(postId: postId),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final feedProvider = Provider.of<FeedProvider>(context);
+    
+    // Get current user ID for like functionality
+    final currentUserId = AuthService().currentUser?.uid ?? '';
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Peaceful Workouts'),
+        centerTitle: true,
+      ),
+      body: feedProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : feedProvider.posts.isEmpty
+              ? const Center(
+                  child: Text('No posts yet. Be the first to share!'),
+                )
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    // Refresh the feed - check what method exists
+                    // This might trigger a reload via notifyListeners
+                    feedProvider.notifyListeners();
+                  },
+                  child: ListView.builder(
+                    itemCount: feedProvider.posts.length,
+                    itemBuilder: (context, index) {
+                      final post = feedProvider.posts[index];
+                      return WorkoutCard(
+                        post: post,
+                        onLikeTapped: () {
+                          // CORRECT: toggleLike requires postId AND userId
+                          feedProvider.toggleLike(post.postId, currentUserId);
+                        },
+                        onCommentTapped: () {
+                          _navigateToComments(post.postId);
+                        },
+                      );
+                    },
+                  ),
+                ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/add-post');
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}

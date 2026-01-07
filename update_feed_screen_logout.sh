@@ -1,3 +1,16 @@
+#!/bin/bash
+# update_feed_screen_logout.sh
+# Add logout button to FeedScreen AppBar
+
+echo "🔧 ADDING LOGOUT TO FeedScreen..."
+echo "=================================="
+
+# First, let's see the current FeedScreen AppBar
+echo "Current FeedScreen AppBar:"
+grep -n "AppBar" lib/features/feed/feed_screen.dart -A 5
+
+# Update FeedScreen to include logout
+cat > lib/features/feed/feed_screen.dart << 'EOF'
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:peaceful_workouts/features/feed/feed_provider.dart';
@@ -132,3 +145,8 @@ class _FeedScreenState extends State<FeedScreen> {
     );
   }
 }
+EOF
+
+echo ""
+echo "✅ LOGOUT ADDED TO FeedScreen"
+echo "============================="

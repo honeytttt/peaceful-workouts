@@ -1,0 +1,83 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:peaceful_workouts/features/feed/feed_provider.dart';
+import 'package:peaceful_workouts/shared/widgets/workout_card.dart';
+import 'comments_screen.dart';
+
+class FeedScreen extends StatefulWidget {
+  const FeedScreen({super.key});
+
+  @override
+  State<FeedScreen> createState() => _FeedScreenState();
+}
+
+class _FeedScreenState extends State<FeedScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Your FeedProvider already loads posts in its constructor
+    // and has currentUserId available via feedProvider.currentUserId
+  }
+
+  void _navigateToComments(String postId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CommentsScreen(postId: postId),
+      ),
+    );
+  }
+
+  Future<void> _refreshFeed() async {
+    // Just trigger rebuild
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final feedProvider = Provider.of<FeedProvider>(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Peaceful Workouts'),
+        centerTitle: true,
+      ),
+      body: feedProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : feedProvider.posts.isEmpty
+              ? const Center(
+                  child: Text('No posts yet. Be the first to share!'),
+                )
+              : RefreshIndicator(
+                  onRefresh: _refreshFeed,
+                  child: ListView.builder(
+                    itemCount: feedProvider.posts.length,
+                    itemBuilder: (context, index) {
+                      final post = feedProvider.posts[index];
+                      return WorkoutCard(
+                        post: post,
+                        onLikeTapped: feedProvider.currentUserId == null
+                            ? null // Disable if no user
+                            : () {
+                                // Use feedProvider.currentUserId which is already available!
+                                feedProvider.toggleLike(
+                                  post.postId, 
+                                  feedProvider.currentUserId!
+                                );
+                              },
+                        onCommentTapped: () {
+                          _navigateToComments(post.postId);
+                        },
+                      );
+                    },
+                  ),
+                ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/add-post');
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}

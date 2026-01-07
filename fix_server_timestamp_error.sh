@@ -1,3 +1,15 @@
+#!/bin/bash
+# fix_server_timestamp_error.sh
+# Fix serverTimestamp() in array error
+
+echo "🔧 FIXING SERVER TIMESTAMP ERROR..."
+echo "==================================="
+
+# Backup the current file
+cp lib/features/feed/comments_screen.dart lib/features/feed/comments_screen.dart.timestamp_backup
+
+# Create the fixed version
+cat > lib/features/feed/comments_screen.dart << 'EOF'
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -387,3 +399,10 @@ class _CommentsScreenState extends State<CommentsScreen> {
     return 'Just now';
   }
 }
+EOF
+
+echo ""
+echo "✅ SERVER TIMESTAMP ERROR FIXED"
+echo "================================"
+echo "Changed: FieldValue.serverTimestamp() → DateTime.now().toIso8601String()"
+echo "This avoids the Firestore restriction on serverTimestamp() in arrays"

@@ -1,112 +1,73 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+// lib/features/feed/feed_model.dart
 class Post {
-  final String id;
+  final String postId;
   final String userId;
   final String userName;
-  final String userProfileImage;
-  final String content;
-  final String workoutType;
-  final int durationMinutes;
+  final String userProfilePic;
+  final String? text;
+  final String? workoutType;
+  final int? duration;
+  final String? imageUrl;
   final DateTime timestamp;
-  final int likes;
-  final List<String> likedBy;
-  final List<dynamic> comments;
-  final String? imageUrl; // This will now contain Cloudinary URLs
+  final int likeCount;
+  final bool isLiked;
+  final int commentCount; // Already exists from Phase 1-2
+  final List<dynamic> comments; // Already exists from Phase 1-2
 
   Post({
-    required this.id,
+    required this.postId,
     required this.userId,
     required this.userName,
-    required this.userProfileImage,
-    required this.content,
-    required this.workoutType,
-    required this.durationMinutes,
-    required this.timestamp,
-    required this.likes,
-    required this.likedBy,
-    required this.comments,
+    required this.userProfilePic,
+    this.text,
+    this.workoutType,
+    this.duration,
     this.imageUrl,
+    required this.timestamp,
+    required this.likeCount,
+    required this.isLiked,
+    required this.commentCount, // Already exists
+    required this.comments, // Already exists
   });
 
-  factory Post.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data()!;
-    
-    // Handle timestamp
-    DateTime timestamp;
-    if (data['timestamp'] is Timestamp) {
-      timestamp = (data['timestamp'] as Timestamp).toDate();
-    } else if (data['timestamp'] is DateTime) {
-      timestamp = data['timestamp'] as DateTime;
-    } else {
-      timestamp = DateTime.now();
-    }
-
-    // Handle likedBy - convert to List<String>
-    List<String> likedBy = [];
-    if (data['likedBy'] is List) {
-      likedBy = List<String>.from(data['likedBy'].map((x) => x.toString()));
-    }
-
+  factory Post.fromFirestore(Map<String, dynamic> data, String postId) {
     return Post(
-      id: doc.id,
+      postId: postId,
       userId: data['userId'] ?? '',
       userName: data['userName'] ?? 'Anonymous',
-      userProfileImage: data['userProfileImage'] ?? '',
-      content: data['content'] ?? '',
-      workoutType: data['workoutType'] ?? 'Other',
-      durationMinutes: (data['durationMinutes'] as num?)?.toInt() ?? 0,
-      timestamp: timestamp,
-      likes: (data['likes'] as num?)?.toInt() ?? 0,
-      likedBy: likedBy,
-      comments: data['comments'] is List ? data['comments'] : [],
-      imageUrl: data['imageUrl'], // Can be Cloudinary URL or any URL
+      userProfilePic: data['userProfilePic'] ??
+          'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+      text: data['text'],
+      workoutType: data['workoutType'],
+      duration: data['duration'] != null
+          ? (data['duration'] is int
+              ? data['duration']
+              : int.tryParse(data['duration'].toString()))
+          : null,
+      imageUrl: data['imageUrl'],
+      timestamp: (data['timestamp'] as Timestamp).toDate(),
+      likeCount: data['likeCount'] ?? 0,
+      isLiked: data['isLiked'] ?? false,
+      commentCount: data['commentCount'] ?? 0, // Already exists
+      comments: data['comments'] ?? [], // Already exists
     );
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toFirestore() {
     return {
       'userId': userId,
       'userName': userName,
-      'userProfileImage': userProfileImage,
-      'content': content,
+      'userProfilePic': userProfilePic,
+      'text': text,
       'workoutType': workoutType,
-      'durationMinutes': durationMinutes,
+      'duration': duration,
       'imageUrl': imageUrl,
-      'timestamp': timestamp,
-      'likes': likes,
-      'likedBy': likedBy,
-      'comments': comments,
+      'timestamp': Timestamp.fromDate(timestamp),
+      'likeCount': likeCount,
+      'isLiked': isLiked,
+      'commentCount': commentCount, // Already exists
+      'comments': comments, // Already exists
     };
-  }
-
-  Post copyWith({
-    String? id,
-    String? userId,
-    String? userName,
-    String? userProfileImage,
-    String? content,
-    String? workoutType,
-    int? durationMinutes,
-    DateTime? timestamp,
-    int? likes,
-    List<String>? likedBy,
-    List<dynamic>? comments,
-    String? imageUrl,
-  }) {
-    return Post(
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      userName: userName ?? this.userName,
-      userProfileImage: userProfileImage ?? this.userProfileImage,
-      content: content ?? this.content,
-      workoutType: workoutType ?? this.workoutType,
-      durationMinutes: durationMinutes ?? this.durationMinutes,
-      timestamp: timestamp ?? this.timestamp,
-      likes: likes ?? this.likes,
-      likedBy: likedBy ?? this.likedBy,
-      comments: comments ?? this.comments,
-      imageUrl: imageUrl ?? this.imageUrl,
-    );
   }
 }

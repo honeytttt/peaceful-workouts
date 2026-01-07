@@ -56,8 +56,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
           _comments = List<Map<String, dynamic>>.from(commentsData);
           // Sort by timestamp (newest first)
           _comments.sort((a, b) {
-            final timeA = _parseTimestamp(a['timestamp']);
-            final timeB = _parseTimestamp(b['timestamp']);
+            final timeA = a['timestamp'] is Timestamp ? (a['timestamp'] as Timestamp).toDate() : DateTime.now();
+            final timeB = b['timestamp'] is Timestamp ? (b['timestamp'] as Timestamp).toDate() : DateTime.now();
             return timeB.compareTo(timeA); // Newest first
           });
         }
@@ -68,27 +68,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
       setState(() {
         _isLoading = false;
       });
-    }
-  }
-
-  DateTime _parseTimestamp(dynamic timestamp) {
-    if (timestamp is Timestamp) {
-      return timestamp.toDate();
-    } else if (timestamp is Map) {
-      // Handle Firestore timestamp map
-      final tsMap = timestamp as Map<String, dynamic>;
-      final seconds = tsMap['_seconds'] as int? ?? 0;
-      final nanoseconds = tsMap['_nanoseconds'] as int? ?? 0;
-      return DateTime.fromMillisecondsSinceEpoch(seconds * 1000 + nanoseconds ~/ 1000000);
-    } else if (timestamp is String) {
-      // Try to parse ISO string
-      try {
-        return DateTime.parse(timestamp);
-      } catch (e) {
-        return DateTime.now();
-      }
-    } else {
-      return DateTime.now();
     }
   }
 
@@ -108,14 +87,12 @@ class _CommentsScreenState extends State<CommentsScreen> {
     });
 
     try {
-      // Create comment with client-side timestamp
-      // We can't use FieldValue.serverTimestamp() in arrays
       final comment = {
         'userId': _currentUserId,
         'userName': _currentUserName ?? 'Anonymous',
         'userProfilePic': _currentUserProfilePic ?? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
         'text': commentText,
-        'timestamp': DateTime.now().toIso8601String(), // Use client-side timestamp
+        'timestamp': FieldValue.serverTimestamp(),
       };
 
       // First, get current comments to ensure we have an array
@@ -323,7 +300,18 @@ class _CommentsScreenState extends State<CommentsScreen> {
   }
 
   Widget _buildCommentItem(Map<String, dynamic> comment) {
-    final timestamp = _parseTimestamp(comment['timestamp']);
+    DateTime timestamp;
+    if (comment['timestamp'] is Timestamp) {
+      timestamp = (comment['timestamp'] as Timestamp).toDate();
+    } else if (comment['timestamp'] is Map) {
+      // Handle Firestore timestamp map
+      final tsMap = comment['timestamp'] as Map<String, dynamic>;
+      final seconds = tsMap['_seconds'] as int? ?? 0;
+      final nanoseconds = tsMap['_nanoseconds'] as int? ?? 0;
+      timestamp = DateTime.fromMillisecondsSinceEpoch(seconds * 1000 + nanoseconds ~/ 1000000);
+    } else {
+      timestamp = DateTime.now();
+    }
     
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
