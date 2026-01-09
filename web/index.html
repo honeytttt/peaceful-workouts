@@ -59,7 +59,12 @@
       // This can be used for custom Google Sign-In if needed
     }
   </script>
-  
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+      .catch(err => console.log('FCM SW registration failed:', err));
+  }
+</script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

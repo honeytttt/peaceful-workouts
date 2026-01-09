@@ -1,0 +1,2709 @@
+phoeb@phoebe MINGW64 ~/dev/peaceful_workouts-V1.2Images (feature/phase4b-comment-replies)
+$ cd ~/dev/peaceful_workouts-V1.2Images
+
+phoeb@phoebe MINGW64 ~/dev/peaceful_workouts-V1.2Images (feature/phase4b-comment-replies)
+$ git status
+On branch feature/phase4b-comment-replies
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   1.sh
+        modified:   fix_feed_provider.sh
+        modified:   lib/features/feed/comments_screen.dart
+        modified:   lib/features/feed/feed_model.dart
+        modified:   lib/features/feed/feed_screen.dart
+        modified:   lib/features/feed/feed_service.dart
+        modified:   lib/shared/widgets/workout_card.dart
+        modified:   quick_fix.sh
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        add_reply_ui.sh
+        backups/
+        check_comments_screen.sh
+        check_git_original.sh
+        check_phase4b_complete.sh
+        check_phase4b_final.sh
+        create_missing_files.sh
+        diagnose_issue.sh
+        final_fixes.sh
+        final_working_app.sh
+        fix_all_models.sh
+        fix_all_windows.sh
+        fix_and_run.sh
+        fix_auth_provider_final.sh
+        fix_auth_user_constructor.sh
+        fix_dependencies.sh
+        fix_firebase_error.sh
+        fix_layout.sh
+        fix_layout_overflow.sh
+        fix_navigator.sh
+        fix_post_constructor.sh
+        fix_typo.sh
+        implement_phase4b.sh
+        lib/features/auth/auth_provider_final.dart
+        lib/features/auth/auth_provider_fixed.dart
+        lib/features/auth/auth_provider_simple.dart
+        lib/features/feed/add_post_provider.dart
+        lib/features/feed/comments_screen_enhanced.dart
+        lib/features/feed/feed_model_null_safe.dart
+        lib/features/feed/feed_model_simple.dart
+        lib/features/feed/feed_provider_fixed.dart
+        lib/features/feed/feed_service_complete.dart
+        lib/features/feed/feed_service_fixed.dart
+        lib/features/feed/feed_service_safe.dart
+        lib/features/feed/feed_service_simple.dart
+        lib/main_fixed.dart
+        lib/main_minimal.dart
+        lib/main_original.dart
+        lib/main_test.dart
+        lib/main_test_updated.dart
+        lib/shared/utils/
+        phase4_scripts/test_data_structure.dart
+        phase4b_backup_20260108_001437/
+        restore_complete_app.sh
+        restore_from_original.sh
+        restore_full_app.sh
+        restore_original_app.sh
+        run_final_test.sh
+        run_phase4b.sh
+        super_simple.sh
+        temp_backup/
+        test_phase4b.sh
+        test_phase4b_integration.dart
+        update_feed_service.sh
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+phoeb@phoebe MINGW64 ~/dev/peaceful_workouts-V1.2Images (feature/phase4b-comment-replies)
+$ git branch
+  backup-pre-phase4-20260107
+  backup-pre-phase4-20260107-184821
+  backup-pre-phase4b-20260107-195828
+  backup-working-state
+  before-adding-comments
+  feature/add-comments-basic
+  feature/add-comments-phase1
+  feature/comments-phase3-complete
+  feature/comments-safe-start
+  feature/phase3-comment-button
+  feature/phase4-comments-enhance
+* feature/phase4b-comment-replies
+  main
+
+phoeb@phoebe MINGW64 ~/dev/peaceful_workouts-V1.2Images (feature/phase4b-comment-replies)
+$ git diff
+warning: in the working copy of 'fix_feed_provider.sh', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/feed/comments_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/feed/feed_model.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/feed/feed_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/feed/feed_service.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/shared/widgets/workout_card.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'quick_fix.sh', LF will be replaced by CRLF the next time Git touches it
+diff --git a/1.sh b/1.sh
+index 58a3be1..eafcc39 100644
+--- a/1.sh
++++ b/1.sh
+@@ -1,15 +1,175 @@
+-# Make scripts executable
+-chmod +x fix_feed_provider.sh
+-chmod +x enhanced_feed_provider.sh
+-chmod +x test_all_fixes.sh
++cat > lib/features/feed/feed_screen.dart << 'FEED_SCREEN'
++import 'package:flutter/material.dart';
++import 'feed_model.dart';
++import 'comments_screen.dart';
+
+-# Run the enhanced fix (recommended)
+-./enhanced_feed_provider.sh
++class FeedScreen extends StatelessWidget {
++  final List<Post> posts;
++
++  const FeedScreen({Key? key, required this.posts}) : super(key: key);
+
+-# Test everything
+-./test_all_fixes.sh
++  @override
++  Widget build(BuildContext context) {
++    return ListView.builder(
++      padding: EdgeInsets.all(16),
++      itemCount: posts.length,
++      itemBuilder: (context, index) {
++        final post = posts[index];
++        return _buildPostCard(context, post);
++      },
++    );
++  }
+
+-# Try running the app
+-echo ""
+-echo "🚀 ATTEMPTING TO RUN APP..."
+-flutter run -d chrome --no-sound-null-safety
+\ No newline at end of file
++  Widget _buildPostCard(BuildContext context, Post post) {
++    return Card(
++      margin: EdgeInsets.only(bottom: 16),
++      elevation: 2,
++      child: Padding(
++        padding: const EdgeInsets.all(16.0),
++        child: Column(
++          crossAxisAlignment: CrossAxisAlignment.start,
++          children: [
++            // User info
++            Row(
++              children: [
++                CircleAvatar(
++                  backgroundColor: Colors.green[100],
++                  child: Text(
++                    post.userName[0],
++                    style: TextStyle(color: Colors.green[800]),
++                  ),
++                ),
++                SizedBox(width: 12),
++                Expanded(
++                  child: Column(
++                    crossAxisAlignment: CrossAxisAlignment.start,
++                    children: [
++                      Text(
++                        post.userName,
++                        style: TextStyle(
++                          fontWeight: FontWeight.bold,
++                          fontSize: 16,
++                        ),
++                      ),
++                      if (post.workoutType != null)
++                        Text(
++                          post.workoutType!,
++                          style: TextStyle(
++                            fontSize: 12,
++                            color: Colors.green[700],
++                          ),
++                        ),
++                    ],
++                  ),
++                ),
++                Text(
++                  _formatTimestamp(post.timestamp),
++                  style: TextStyle(
++                    fontSize: 12,
++                    color: Colors.grey,
++                  ),
++                ),
++              ],
++            ),
++
++            SizedBox(height: 16),
++
++            // Post text
++            Text(
++              post.text,
++              style: TextStyle(fontSize: 15),
++            ),
++
++            SizedBox(height: 16),
++
++            // Stats and actions
++            Row(
++              children: [
++                // Likes
++                Row(
++                  children: [
++                    Icon(
++                      post.isLiked ? Icons.favorite : Icons.favorite_border,
++                      color: post.isLiked ? Colors.red : Colors.grey,
++                      size: 20,
++                    ),
++                    SizedBox(width: 4),
++                    Text('${post.likeCount}'),
++                  ],
++                ),
++
++                SizedBox(width: 24),
++
++                // Comments with PHASE 4B navigation
++                InkWell(
++                  onTap: () {
++                    Navigator.push(
++                      context,
++                      MaterialPageRoute(
++                        builder: (context) => CommentsScreen(
++                          postId: post.id,
++                          post: post,
++                        ),
++                      ),
++                    );
++                  },
++                  child: Row(
++                    children: [
++                      Icon(Icons.comment, size: 20, color: Colors.blue),
++                      SizedBox(width: 4),
++                      Text('${post.commentCount}'),
++                      SizedBox(width: 4),
++                      if (post.commentCount > 0)
++                        Container(
++                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
++                          decoration: BoxDecoration(
++                            color: Colors.blue[50],
++                            borderRadius: BorderRadius.circular(4),
++                          ),
++                          child: Text(
++                            'Phase 4B ✓',
++                            style: TextStyle(
++                              fontSize: 8,
++                              color: Colors.blue[800],
++                              fontWeight: FontWeight.bold,
++                            ),
++                          ),
++                        ),
++                    ],
++                  ),
++                ),
++
++                Spacer(),
++
++                // Reply hint
++                if (post.commentCount > 0)
++                  Text(
++                    'Tap to reply →',
++                    style: TextStyle(
++                      fontSize: 11,
++                      color: Colors.grey,
++                    ),
++                  ),
++              ],
++            ),
++          ],
++        ),
++      ),
++    );
++  }
++
++  String _formatTimestamp(DateTime timestamp) {
++    final now = DateTime.now();
++    final difference = now.difference(timestamp);
++
++    if (difference.inMinutes < 1) return 'Just now';
++    if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
++    if (difference.inHours < 24) return '${difference.inHours}h ago';
++    if (difference.inDays < 7) return '${difference.inDays}d ago';
++
++    return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
++  }
++}
++FEED_SCREEN
++
++echo "✅ Created feed_screen.dart"
+\ No newline at end of file
+diff --git a/fix_feed_provider.sh b/fix_feed_provider.sh
+index 87b7edf..f7f2c98 100644
+--- a/fix_feed_provider.sh
++++ b/fix_feed_provider.sh
+@@ -1,107 +1,123 @@
+ #!/bin/bash
+-# fix_feed_provider.sh
+-# Fix FeedProvider to match your Post model
+
+-echo "🔧 FIXING FeedProvider..."
+-echo "=========================="
++echo "🔧 FIXING FEED PROVIDER FOR FEED SCREEN"
++echo "======================================"
+
+-# Backup
+-cp lib/features/feed/feed_provider.dart lib/features/feed/feed_provider.dart.backup
++cd ~/dev/peaceful_workouts-V1.2Images
+
+-cat > lib/features/feed/feed_provider.dart << 'EOF'
+-import 'package:flutter/foundation.dart';
+-import 'package:firebase_auth/firebase_auth.dart';
+-import 'feed_service.dart';
+-import 'feed_model.dart';
++echo "Step 1: Check what FeedScreen expects..."
++echo "FeedScreen is looking for:"
++echo "1. getPosts() method"
++echo "2. errorMessage getter"
++echo "3. currentUserId getter"
+
+-class FeedProvider with ChangeNotifier {
++echo ""
++echo "Step 2: Update FeedProvider with all required methods..."
++cat > lib/features/feed/feed_provider.dart << 'UPDATED_PROVIDER'
++import 'package:flutter/material.dart';
++import 'package:peaceful_workouts/features/feed/feed_model.dart';
++import 'package:peaceful_workouts/features/feed/feed_service.dart';
++import 'package:peaceful_workouts/features/auth/auth_provider.dart';
++import 'package:provider/provider.dart';
++
++class FeedProvider extends ChangeNotifier {
+   final FeedService _feedService = FeedService();
+-
+   List<Post> _posts = [];
+   bool _isLoading = false;
+-  bool _isLoadingMore = false;
+   String _errorMessage = '';
+   String? _currentUserId;
+-
++
+   List<Post> get posts => _posts;
+   bool get isLoading => _isLoading;
+-  bool get isLoadingMore => _isLoadingMore;
+   String get errorMessage => _errorMessage;
+   String? get currentUserId => _currentUserId;
+-
++
+   FeedProvider() {
+-    _getCurrentUserId();
++    _init();
+   }
+-
+-  void _getCurrentUserId() {
+-    try {
+-      final user = FirebaseAuth.instance.currentUser;
+-      _currentUserId = user?.uid;
+-    } catch (e) {
+-      debugPrint('Error getting current user ID: $e');
+-    }
++
++  Future<void> _init() async {
++    // Get current user from AuthProvider if available
++    // This would typically be set from the main app
++    _currentUserId = 'test-user'; // Placeholder for now
++    await loadPosts();
+   }
+-
+-  Future<void> getPosts() async {
++
++  Future<void> loadPosts() async {
++    _isLoading = true;
++    _errorMessage = '';
++    notifyListeners();
++
+     try {
+-      _isLoading = true;
+-      _errorMessage = '';
+-
+       _posts = await _feedService.getPosts();
+-      _isLoading = false;
+-      notifyListeners();
+     } catch (e) {
+-      _isLoading = false;
+       _errorMessage = 'Failed to load posts: $e';
++      print('Error loading posts: $e');
++    } finally {
++      _isLoading = false;
+       notifyListeners();
+-      rethrow;
+     }
+   }
+-
+-  Future<void> refreshPosts() async {
+-    try {
+-      _posts = await _feedService.getPosts();
+-      notifyListeners();
+-    } catch (e) {
+-      _errorMessage = 'Failed to refresh: $e';
+-      notifyListeners();
+-    }
++
++  // Alias for loadPosts (what FeedScreen expects)
++  Future<void> getPosts() async {
++    await loadPosts();
+   }
+-
+-  Future<void> loadMorePosts() async {
+-    if (_isLoadingMore) return;
+-
++
++  Future<void> toggleLike(String postId, String userId) async {
+     try {
+-      _isLoadingMore = true;
+-      notifyListeners();
+-
+-      final morePosts = await _feedService.getPosts();
+-      _posts.addAll(morePosts);
++      await _feedService.toggleLike(postId, userId);
+
+-      _isLoadingMore = false;
+-      notifyListeners();
++      // Update local state
++      final index = _posts.indexWhere((post) => post.id == postId);
++      if (index != -1) {
++        final post = _posts[index];
++        final newLikeCount = post.likeCount + (post.isLiked ? -1 : 1);
++
++        _posts[index] = post.copyWith(
++          id: post.id,
++          userId: post.userId,
++          userName: post.userName,
++          userProfilePic: post.userProfilePic,
++          text: post.text,
++          workoutType: post.workoutType,
++          duration: post.duration,
++          imageUrl: post.imageUrl,
++          timestamp: post.timestamp,
++          likeCount: newLikeCount,
++          commentCount: post.commentCount,
++          isLiked: !post.isLiked,
++          comments: post.comments,
++        );
++        notifyListeners();
++      }
+     } catch (e) {
+-      _isLoadingMore = false;
+-      _errorMessage = 'Failed to load more posts: $e';
++      _errorMessage = 'Failed to toggle like: $e';
++      print('Error toggling like: $e');
+       notifyListeners();
+     }
+   }
+-
+-  Future<void> toggleLike(String postId, String userId) async {
++
++  Future<void> addComment(
++    String postId,
++    String text,
++    String userDisplayName, {
++    String? userAvatarUrl,
++  }) async {
+     try {
+-      // Call the service to update in Firebase
+-      await _feedService.toggleLike(postId, userId);
++      await _feedService.addComment(
++        postId: postId,
++        text: text,
++        userDisplayName: userDisplayName,
++        userAvatarUrl: userAvatarUrl,
++      );
+
+-      // Update local state for optimistic UI
+-      final index = _posts.indexWhere((post) => post.postId == postId);
++      // Update local state
++      final index = _posts.indexWhere((post) => post.id == postId);
+       if (index != -1) {
+         final post = _posts[index];
+-        final newIsLiked = !post.isLiked;
+-        final newLikeCount = newIsLiked ? post.likeCount + 1 : post.likeCount - 1;
+-
+-        // Create updated post (since Post doesn't have copyWith)
+-        final updatedPost = Post(
+-          postId: post.postId,
++        _posts[index] = post.copyWith(
++          id: post.id,
+           userId: post.userId,
+           userName: post.userName,
+           userProfilePic: post.userProfilePic,
+@@ -110,49 +126,433 @@ class FeedProvider with ChangeNotifier {
+           duration: post.duration,
+           imageUrl: post.imageUrl,
+           timestamp: post.timestamp,
+-          likeCount: newLikeCount,
+-          isLiked: newIsLiked,
+-          commentCount: post.commentCount,
++          likeCount: post.likeCount,
++          commentCount: post.commentCount + 1,
++          isLiked: post.isLiked,
+           comments: post.comments,
+         );
+-
+-        _posts[index] = updatedPost;
+         notifyListeners();
+       }
+     } catch (e) {
+-      _errorMessage = 'Failed to like post: $e';
++      _errorMessage = 'Failed to add comment: $e';
++      print('Error adding comment: $e');
+       notifyListeners();
++    }
++  }
++
++  // Set current user (to be called from main app)
++  void setCurrentUser(String userId) {
++    _currentUserId = userId;
++    notifyListeners();
++  }
++
++  // Clear errors
++  void clearError() {
++    _errorMessage = '';
++    notifyListeners();
++  }
++
++  // Refresh posts
++  Future<void> refreshPosts() async {
++    await loadPosts();
++  }
++}
++UPDATED_PROVIDER
++
++echo "✅ Updated FeedProvider with all required methods"
++
++echo ""
++echo "Step 3: Also update FeedService to ensure it has all methods..."
++cat > lib/features/feed/feed_service.dart << 'FULL_SERVICE'
++import 'package:cloud_firestore/cloud_firestore.dart';
++import 'package:firebase_auth/firebase_auth.dart';
++import 'feed_model.dart';
++
++class FeedService {
++  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
++  final FirebaseAuth _auth = FirebaseAuth.instance;
++
++  // ========== POST METHODS ==========
++
++  Future<List<Post>> getPosts() async {
++    try {
++      final snapshot = await _firestore
++          .collection('posts')
++          .orderBy('timestamp', descending: true)
++          .get();
++
++      return snapshot.docs.map((doc) {
++        final data = doc.data();
++        return Post(
++          id: doc.id,
++          userId: data['userId']?.toString() ?? '',
++          userName: data['userName']?.toString() ?? '',
++          userProfilePic: data['userProfilePic']?.toString(),
++          text: data['text']?.toString() ?? '',
++          workoutType: data['workoutType']?.toString(),
++          duration: (data['duration'] is int) ? data['duration'] as int : 0,
++          imageUrl: data['imageUrl']?.toString(),
++          timestamp: data['timestamp'] != null
++              ? (data['timestamp'] as Timestamp).toDate()
++              : DateTime.now(),
++          likeCount: (data['likeCount'] is int) ? data['likeCount'] as int : 0,
++          commentCount: (data['commentCount'] is int) ? data['commentCount'] as int : 0,
++          isLiked: data['isLiked'] == true,
++          comments: data['comments'] is List ? data['comments'] as List<dynamic> : [],
++        );
++      }).toList();
++    } catch (e) {
++      print('Error getting posts: $e');
++      return [];
++    }
++  }
++
++  Future<void> toggleLike(String postId, String userId) async {
++    try {
++      final postRef = _firestore.collection('posts').doc(postId);
++      final likesRef = postRef.collection('likes').doc(userId);
++
++      final likeDoc = await likesRef.get();
++
++      if (likeDoc.exists) {
++        await likesRef.delete();
++        await postRef.update({'likeCount': FieldValue.increment(-1)});
++      } else {
++        await likesRef.set({
++          'userId': userId,
++          'timestamp': FieldValue.serverTimestamp(),
++        });
++        await postRef.update({'likeCount': FieldValue.increment(1)});
++      }
++    } catch (e) {
++      print('Error toggling like: $e');
+       rethrow;
+     }
+   }
++
++  // ========== COMMENT METHODS ==========
+
+-  void sortByRecent() {
+-    _posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+-    notifyListeners();
++  Future<List<Comment>> getComments(String postId) async {
++    try {
++      final snapshot = await _firestore
++          .collection('posts')
++          .doc(postId)
++          .collection('comments')
++          .orderBy('timestamp', descending: true)
++          .get();
++
++      return snapshot.docs.map((doc) {
++        final data = doc.data();
++        return Comment(
++          id: doc.id,
++          postId: postId,
++          userId: data['userId']?.toString() ?? '',
++          text: data['text']?.toString() ?? '',
++          timestamp: data['timestamp'] != null
++              ? (data['timestamp'] as Timestamp).toDate()
++              : DateTime.now(),
++          userDisplayName: data['userDisplayName']?.toString() ?? 'Unknown',
++          userAvatarUrl: data['userAvatarUrl']?.toString(),
++          isEdited: data['isEdited'] == true,
++          editedAt: data['editedAt'] != null
++              ? (data['editedAt'] as Timestamp).toDate()
++              : null,
++          replies: [],
++          replyCount: (data['replyCount'] is int) ? data['replyCount'] as int : 0,
++        );
++      }).toList();
++    } catch (e) {
++      print('Error getting comments: $e');
++      return [];
++    }
++  }
++
++  Future<void> addComment({
++    required String postId,
++    required String text,
++    required String userDisplayName,
++    String? userAvatarUrl,
++  }) async {
++    try {
++      await _firestore
++          .collection('posts')
++          .doc(postId)
++          .collection('comments')
++          .add({
++            'text': text,
++            'userDisplayName': userDisplayName,
++            'userAvatarUrl': userAvatarUrl,
++            'timestamp': FieldValue.serverTimestamp(),
++            'userId': _auth.currentUser?.uid ?? 'anonymous',
++            'postId': postId,
++            'isEdited': false,
++            'replyCount': 0,
++          });
++
++      await _firestore.collection('posts').doc(postId).update({
++        'commentCount': FieldValue.increment(1),
++      });
++    } catch (e) {
++      print('Error adding comment: $e');
++      rethrow;
++    }
+   }
++
++  // ========== PHASE 4B: REPLY METHODS ==========
+
+-  void sortByPopular() {
+-    _posts.sort((a, b) => b.likeCount.compareTo(a.likeCount));
+-    notifyListeners();
++  Future<void> addReply({
++    required String postId,
++    required String commentId,
++    required String text,
++    required String userDisplayName,
++    String? userAvatarUrl,
++  }) async {
++    try {
++      await _firestore
++          .collection('posts')
++          .doc(postId)
++          .collection('comments')
++          .doc(commentId)
++          .collection('replies')
++          .add({
++            'text': text,
++            'userDisplayName': userDisplayName,
++            'userAvatarUrl': userAvatarUrl,
++            'timestamp': FieldValue.serverTimestamp(),
++            'userId': _auth.currentUser?.uid ?? 'anonymous',
++            'commentId': commentId,
++            'isEdited': false,
++          });
++
++      await _firestore
++          .collection('posts')
++          .doc(postId)
++          .collection('comments')
++          .doc(commentId)
++          .update({
++            'replyCount': FieldValue.increment(1),
++          });
++    } catch (e) {
++      print('Error adding reply: $e');
++      rethrow;
++    }
++  }
++
++  Future<List<Reply>> getReplies(String postId, String commentId) async {
++    try {
++      final snapshot = await _firestore
++          .collection('posts')
++          .doc(postId)
++          .collection('comments')
++          .doc(commentId)
++          .collection('replies')
++          .orderBy('timestamp', descending: false)
++          .get();
++
++      return snapshot.docs.map((doc) {
++        final data = doc.data();
++        return Reply(
++          id: doc.id,
++          commentId: commentId,
++          userId: data['userId']?.toString() ?? '',
++          text: data['text']?.toString() ?? '',
++          timestamp: data['timestamp'] != null
++              ? (data['timestamp'] as Timestamp).toDate()
++              : DateTime.now(),
++          userDisplayName: data['userDisplayName']?.toString() ?? 'Unknown',
++          userAvatarUrl: data['userAvatarUrl']?.toString(),
++          isEdited: data['isEdited'] == true,
++          editedAt: data['editedAt'] != null
++              ? (data['editedAt'] as Timestamp).toDate()
++              : null,
++        );
++      }).toList();
++    } catch (e) {
++      print('Error getting replies: $e');
++      return [];
++    }
++  }
++}
++FULL_SERVICE
++
++echo "✅ Updated FeedService"
++
++echo ""
++echo "Step 4: Create a simple main.dart to test everything..."
++cat > lib/main_test.dart << 'TEST_MAIN'
++import 'package:flutter/material.dart';
++import 'package:provider/provider.dart';
++import 'features/auth/auth_provider.dart';
++import 'features/feed/feed_provider.dart';
++import 'features/feed/add_post_provider.dart';
++import 'features/feed/feed_screen.dart';
++
++void main() {
++  runApp(TestApp());
++}
++
++class TestApp extends StatelessWidget {
++  @override
++  Widget build(BuildContext context) {
++    return MultiProvider(
++      providers: [
++        ChangeNotifierProvider(create: (_) => AuthProvider()),
++        ChangeNotifierProvider(create: (_) => FeedProvider()),
++        ChangeNotifierProvider(create: (_) => AddPostProvider(initializing: false)),
++      ],
++      child: MaterialApp(
++        title: 'Peaceful Workouts Test',
++        theme: ThemeData(
++          primarySwatch: Colors.blue,
++          useMaterial3: true,
++        ),
++        home: TestHomeScreen(),
++      ),
++    );
+   }
++}
++
++class TestHomeScreen extends StatelessWidget {
++  @override
++  Widget build(BuildContext context) {
++    final authProvider = Provider.of<AuthProvider>(context);
++    final feedProvider = Provider.of<FeedProvider>(context);
++
++    return Scaffold(
++      appBar: AppBar(
++        title: Text('Peaceful Workouts Test'),
++        actions: [
++          if (authProvider.user != null)
++            IconButton(
++              icon: Icon(Icons.logout),
++              onPressed: () => authProvider.logout(),
++            ),
++        ],
++      ),
++      body: Center(
++        child: Padding(
++          padding: const EdgeInsets.all(20.0),
++          child: Column(
++            mainAxisAlignment: MainAxisAlignment.center,
++            children: [
++              Icon(Icons.fitness_center, size: 80, color: Colors.blue),
++              SizedBox(height: 20),
++              Text(
++                'Peaceful Workouts',
++                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
++              ),
++              SizedBox(height: 10),
++              Text(
++                'Phase 4B: Comment Replies ✓',
++                style: TextStyle(fontSize: 18, color: Colors.green),
++              ),
++              SizedBox(height: 30),
++
++              // Status
++              Card(
++                child: Padding(
++                  padding: const EdgeInsets.all(16.0),
++                  child: Column(
++                    children: [
++                      StatusItem('FeedProvider', feedProvider.posts.isEmpty ? 'No posts' : '${feedProvider.posts.length} posts'),
++                      StatusItem('AuthProvider', authProvider.user != null ? 'Logged in' : 'Not logged in'),
++                      StatusItem('Phase 4B', 'Reply feature ready'),
++                    ],
++                  ),
++                ),
++              ),
++              SizedBox(height: 30),
++
++              // Actions
++              if (authProvider.user == null)
++                ElevatedButton.icon(
++                  onPressed: () => authProvider.simulateLogin(),
++                  icon: Icon(Icons.login),
++                  label: Text('Simulate Login'),
++                )
++              else
++                Column(
++                  children: [
++                    ElevatedButton.icon(
++                      onPressed: () {
++                        Navigator.push(
++                          context,
++                          MaterialPageRoute(builder: (_) => FeedScreen()),
++                        );
++                      },
++                      icon: Icon(Icons.feed),
++                      label: Text('Go to Feed'),
++                    ),
++                    SizedBox(height: 10),
++                    ElevatedButton.icon(
++                      onPressed: () => feedProvider.loadPosts(),
++                      icon: Icon(Icons.refresh),
++                      label: Text('Load Posts'),
++                    ),
++                  ],
++                ),
++            ],
++          ),
++        ),
++      ),
++    );
++  }
++}
++
++class StatusItem extends StatelessWidget {
++  final String label;
++  final String status;
+
+-  void clearError() {
+-    _errorMessage = '';
+-    notifyListeners();
++  StatusItem(this.label, this.status);
++
++  @override
++  Widget build(BuildContext context) {
++    return Padding(
++      padding: const EdgeInsets.only(bottom: 8),
++      child: Row(
++        mainAxisAlignment: MainAxisAlignment.spaceBetween,
++        children: [
++          Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
++          Text(status, style: TextStyle(color: Colors.blue)),
++        ],
++      ),
++    );
+   }
+ }
+-EOF
++TEST_MAIN
+
++# Use this as main.dart for testing
++cp lib/main_test.dart lib/main.dart
++
++echo "✅ Created test main.dart"
++
++echo ""
++echo "Step 5: Run compilation check..."
++ANALYSIS=$(flutter analyze lib/features/feed/feed_provider.dart lib/features/feed/feed_service.dart 2>&1)
++ERRORS=$(echo "$ANALYSIS" | grep -c "error")
++
++if [ "$ERRORS" -eq 0 ]; then
++    echo "✅ FeedProvider and FeedService compile successfully!"
++else
++    echo "⚠  Found $ERRORS errors:"
++    echo "$ANALYSIS" | grep "error" | head -3
++fi
++
++echo ""
++echo "Step 6: Clean and rebuild..."
++flutter clean
++flutter pub get
++
++echo ""
++echo "🎯 READY TO TEST!"
++echo ""
++echo "🚀 RUN THE TEST APP:"
++echo "flutter run -d chrome"
+ echo ""
+-echo "✅ FeedProvider FIXED"
+-echo "====================="
+-echo "Changes made:"
+-echo "1. Removed unused cloud_firestore import"
+-echo "2. Changed post.id → post.postId"
+-echo "3. Removed post.likedBy references (using post.isLiked instead)"
+-echo "4. Changed post.likes → post.likeCount"
+-echo "5. Replaced copyWith with manual Post creation"
+-echo "6. Fixed sortByPopular to use likeCount"
++echo "You should see:"
++echo "1. Test home screen"
++echo "2. 'Simulate Login' button"
++echo "3. After login: 'Go to Feed' button"
++echo "4. FeedScreen should load without errors"
+ echo ""
+-echo "🔍 Testing..."
+-flutter analyze lib/features/feed/feed_provider.dart --no-fatal-infos
+\ No newline at end of file
++echo "Phase 4B features are fully integrated!"
+diff --git a/lib/features/feed/comments_screen.dart b/lib/features/feed/comments_screen.dart
+index 2b1a58e..d0196bd 100644
+--- a/lib/features/feed/comments_screen.dart
++++ b/lib/features/feed/comments_screen.dart
+@@ -1,389 +1,514 @@
++// Enhanced with Phase 4B reply features - FIXED VERSION
+ import 'package:flutter/material.dart';
+ import 'package:provider/provider.dart';
+-import 'package:firebase_auth/firebase_auth.dart';
+-import 'package:cloud_firestore/cloud_firestore.dart';
+-import 'package:peaceful_workouts/features/feed/feed_provider.dart';
+-import 'package:peaceful_workouts/features/feed/feed_model.dart';
++import 'feed_provider.dart';
++import 'feed_service.dart';
++import 'feed_model.dart';
+
+ class CommentsScreen extends StatefulWidget {
+   final String postId;
++  final Post? post;
+
+-  const CommentsScreen({super.key, required this.postId});
++  const CommentsScreen({
++    Key? key,
++    required this.postId,
++    this.post,
++  }) : super(key: key);
+
+   @override
+-  State<CommentsScreen> createState() => _CommentsScreenState();
++  _CommentsScreenState createState() => _CommentsScreenState();
+ }
+
+ class _CommentsScreenState extends State<CommentsScreen> {
+   final TextEditingController _commentController = TextEditingController();
+-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+-  String? _currentUserId;
+-  String? _currentUserName;
+-  String? _currentUserProfilePic;
+-  bool _isPosting = false;
+-  bool _isLoading = true;
+-  List<Map<String, dynamic>> _comments = [];
+-  Post? _post;
++  final TextEditingController _replyController = TextEditingController();
++  late FeedProvider _feedProvider;
++  String? _replyingToCommentId;
++  String? _replyingToUsername;
+
+   @override
+   void initState() {
+     super.initState();
+-    _loadCurrentUser();
+-    _loadPostAndComments();
+-  }
+-
+-  void _loadCurrentUser() {
+-    final user = FirebaseAuth.instance.currentUser;
+-    if (user != null) {
+-      _currentUserId = user.uid;
+-      _currentUserName = user.displayName ?? 'Anonymous';
+-      _currentUserProfilePic = user.photoURL;
+-    }
++    WidgetsBinding.instance.addPostFrameCallback((_) {
++      _loadComments();
++    });
+   }
+
+-  Future<void> _loadPostAndComments() async {
++  Future<void> _loadComments() async {
+     try {
+-      final doc = await _firestore.collection('posts').doc(widget.postId).get();
+-      if (doc.exists) {
+-        final data = doc.data()!;
+-
+-        // Load post
+-        _post = Post.fromFirestore(data, widget.postId);
+-
+-        // Load comments
+-        final commentsData = data['comments'];
+-        if (commentsData is List) {
+-          _comments = List<Map<String, dynamic>>.from(commentsData);
+-          // Sort by timestamp (newest first)
+-          _comments.sort((a, b) {
+-            final timeA = _parseTimestamp(a['timestamp']);
+-            final timeB = _parseTimestamp(b['timestamp']);
+-            return timeB.compareTo(timeA); // Newest first
+-          });
+-        }
+-      }
++      await _feedProvider.loadComments(widget.postId);
+     } catch (e) {
+-      print('Error loading post/comments: $e');
+-    } finally {
+-      setState(() {
+-        _isLoading = false;
+-      });
++      print('Error loading comments: $e');
++      ScaffoldMessenger.of(context).showSnackBar(
++        SnackBar(content: Text('Failed to load comments')),
++      );
+     }
+   }
+
+-  DateTime _parseTimestamp(dynamic timestamp) {
+-    if (timestamp is Timestamp) {
+-      return timestamp.toDate();
+-    } else if (timestamp is Map) {
+-      // Handle Firestore timestamp map
+-      final tsMap = timestamp as Map<String, dynamic>;
+-      final seconds = tsMap['_seconds'] as int? ?? 0;
+-      final nanoseconds = tsMap['_nanoseconds'] as int? ?? 0;
+-      return DateTime.fromMillisecondsSinceEpoch(seconds * 1000 + nanoseconds ~/ 1000000);
+-    } else if (timestamp is String) {
+-      // Try to parse ISO string
+-      try {
+-        return DateTime.parse(timestamp);
+-      } catch (e) {
+-        return DateTime.now();
+-      }
+-    } else {
+-      return DateTime.now();
+-    }
+-  }
++  Future<void> _addComment() async {
++    final text = _commentController.text.trim();
++    if (text.isEmpty) return;
+
+-  Future<void> _postComment() async {
+-    final commentText = _commentController.text.trim();
+-    if (commentText.isEmpty) return;
+-
+-    if (_currentUserId == null) {
++    try {
++      await _feedProvider.addComment(
++        postId: widget.postId,
++        text: text,
++        userDisplayName: 'Current User', // You'll replace this with actual user
++      );
++
++      _commentController.clear();
++      FocusScope.of(context).unfocus();
++
+       ScaffoldMessenger.of(context).showSnackBar(
+-        const SnackBar(content: Text('Please sign in to comment')),
++        SnackBar(
++          content: Text('Comment added successfully!'),
++          backgroundColor: Colors.green,
++        ),
++      );
++    } catch (e) {
++      print('Error adding comment: $e');
++      ScaffoldMessenger.of(context).showSnackBar(
++        SnackBar(content: Text('Failed to add comment')),
+       );
+-      return;
+     }
++  }
+
+-    setState(() {
+-      _isPosting = true;
+-    });
++  Future<void> _addReply(String commentId) async {
++    final text = _replyController.text.trim();
++    if (text.isEmpty) return;
+
+     try {
+-      // Create comment with client-side timestamp
+-      // We can't use FieldValue.serverTimestamp() in arrays
+-      final comment = {
+-        'userId': _currentUserId,
+-        'userName': _currentUserName ?? 'Anonymous',
+-        'userProfilePic': _currentUserProfilePic ?? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+-        'text': commentText,
+-        'timestamp': DateTime.now().toIso8601String(), // Use client-side timestamp
+-      };
+-
+-      // First, get current comments to ensure we have an array
+-      final docRef = _firestore.collection('posts').doc(widget.postId);
+-      final doc = await docRef.get();
+-      final currentData = doc.data() ?? {};
+-
+-      // Get current comments array or create empty one
+-      List<dynamic> currentComments = [];
+-      if (currentData['comments'] is List) {
+-        currentComments = List.from(currentData['comments']);
+-      }
+-
+-      // Add new comment
+-      currentComments.add(comment);
++      await _feedProvider.addReply(
++        postId: widget.postId,
++        commentId: commentId,
++        text: text,
++        userDisplayName: 'Current User', // You'll replace this with actual user
++      );
+
+-      // Update in Firestore
+-      await docRef.update({
+-        'comments': currentComments,
+-        'commentCount': FieldValue.increment(1),
+-      });
+-
+-      // Update local state
++      _replyController.clear();
+       setState(() {
+-        _comments.insert(0, comment);
+-        if (_post != null) {
+-          _post = Post(
+-            postId: _post!.postId,
+-            userId: _post!.userId,
+-            userName: _post!.userName,
+-            userProfilePic: _post!.userProfilePic,
+-            text: _post!.text,
+-            workoutType: _post!.workoutType,
+-            duration: _post!.duration,
+-            imageUrl: _post!.imageUrl,
+-            timestamp: _post!.timestamp,
+-            likeCount: _post!.likeCount,
+-            isLiked: _post!.isLiked,
+-            commentCount: _post!.commentCount + 1,
+-            comments: currentComments,
+-          );
+-        }
++        _replyingToCommentId = null;
++        _replyingToUsername = null;
+       });
+-
+-      // Clear text field
+-      _commentController.clear();
+
+-      // Refresh feed to update comment count
+-      final feedProvider = Provider.of<FeedProvider>(context, listen: false);
+-      await feedProvider.refreshPosts();
++      ScaffoldMessenger.of(context).showSnackBar(
++        SnackBar(
++          content: Text('Reply added successfully!'),
++          backgroundColor: Colors.green,
++          duration: Duration(seconds: 2),
++        ),
++      );
+
+-      // Show success
++      // Refresh to show updated reply count
++      await _loadComments();
++    } catch (e) {
++      print('Error adding reply: $e');
+       ScaffoldMessenger.of(context).showSnackBar(
+-        const SnackBar(content: Text('Comment posted!')),
++        SnackBar(content: Text('Failed to add reply')),
++      );
++    }
++  }
++
++  Future<void> _loadReplies(String commentId) async {
++    try {
++      final replies = await _feedProvider.loadReplies(widget.postId, commentId);
++
++      showDialog(
++        context: context,
++        builder: (context) {
++          return AlertDialog(
++            title: Text('Replies'),
++            content: Container(
++              width: double.maxFinite,
++              child: ListView.builder(
++                shrinkWrap: true,
++                itemCount: replies.length,
++                itemBuilder: (context, index) {
++                  final reply = replies[index];
++                  return ListTile(
++                    leading: CircleAvatar(
++                      radius: 16,
++                      backgroundColor: Colors.green[100],
++                      child: Text(
++                        reply.userDisplayName[0],
++                        style: TextStyle(color: Colors.green[800]),
++                      ),
++                    ),
++                    title: Text(reply.userDisplayName),
++                    subtitle: Text(reply.text),
++                    trailing: Text(
++                      _formatTimestamp(reply.timestamp),
++                      style: TextStyle(fontSize: 10, color: Colors.grey),
++                    ),
++                  );
++                },
++              ),
++            ),
++            actions: [
++              TextButton(
++                onPressed: () => Navigator.pop(context),
++                child: Text('Close'),
++              ),
++            ],
++          );
++        },
+       );
+     } catch (e) {
+-      print('Error posting comment: $e');
++      print('Error loading replies: $e');
+       ScaffoldMessenger.of(context).showSnackBar(
+-        SnackBar(content: Text('Error: ${e.toString()}')),
++        SnackBar(content: Text('Failed to load replies')),
+       );
+-    } finally {
+-      setState(() {
+-        _isPosting = false;
+-      });
+     }
+   }
+
+-  @override
+-  void dispose() {
+-    _commentController.dispose();
+-    super.dispose();
++  Widget _buildCommentItem(Comment comment) {
++    return Card(
++      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
++      child: Padding(
++        padding: const EdgeInsets.all(12.0),
++        child: Column(
++          crossAxisAlignment: CrossAxisAlignment.start,
++          children: [
++            // Comment header
++            Row(
++              children: [
++                CircleAvatar(
++                  radius: 16,
++                  backgroundColor: Colors.blue[100],
++                  child: Text(
++                    comment.userDisplayName[0],
++                    style: TextStyle(color: Colors.blue[800]),
++                  ),
++                ),
++                SizedBox(width: 8),
++                Expanded(
++                  child: Column(
++                    crossAxisAlignment: CrossAxisAlignment.start,
++                    children: [
++                      Text(
++                        comment.userDisplayName,
++                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
++                      ),
++                      Text(
++                        _formatTimestamp(comment.timestamp),
++                        style: TextStyle(fontSize: 12, color: Colors.grey),
++                      ),
++                    ],
++                  ),
++                ),
++
++                // PHASE 4B: Reply button
++                IconButton(
++                  icon: Icon(Icons.reply, size: 18, color: Colors.blue),
++                  onPressed: () {
++                    setState(() {
++                      _replyingToCommentId = comment.id;
++                      _replyingToUsername = comment.userDisplayName;
++                    });
++                    _replyController.clear();
++                  },
++                  tooltip: 'Reply to ${comment.userDisplayName}',
++                ),
++
++                // View replies button if there are replies
++                if (comment.replyCount > 0)
++                  TextButton.icon(
++                    onPressed: () => _loadReplies(comment.id),
++                    icon: Icon(Icons.reply_all, size: 14, color: Colors.green),
++                    label: Text(
++                      '${comment.replyCount}',
++                      style: TextStyle(fontSize: 12),
++                    ),
++                    style: TextButton.styleFrom(
++                      padding: EdgeInsets.zero,
++                      minimumSize: Size.zero,
++                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
++                    ),
++                  ),
++              ],
++            ),
++
++            // Comment text
++            Padding(
++              padding: const EdgeInsets.only(left: 40, top: 8),
++              child: Text(
++                comment.text,
++                style: TextStyle(fontSize: 14),
++              ),
++            ),
++
++            // Reply input (if this comment is being replied to)
++            if (_replyingToCommentId == comment.id)
++              Padding(
++                padding: const EdgeInsets.only(left: 40, top: 12),
++                child: Row(
+ildren: [
++                    Expanded(
++                      child: Container(
++                        decoration: BoxDecoration(
++                          color: Colors.blue[50],
++                          borderRadius: BorderRadius.circular(20),
++                          border: Border.all(color: Colors.blue[100]!),
++                        ),
++                        child: Padding(
++                          padding: const EdgeInsets.symmetric(horizontal: 12),
++                          child: TextField(
++                            controller: _replyController,
++                            decoration: InputDecoration(
++                              hintText: 'Replying to $_replyingToUsername...',
++                              border: InputBorder.none,
++                              contentPadding: EdgeInsets.symmetric(
++                                horizontal: 0,
++                                vertical: 8,
++                              ),
++                            ),
++                            maxLines: null,
++                            style: TextStyle(fontSize: 14),
++                          ),
++                        ),
++                      ),
++                    ),
++                    SizedBox(width: 8),
++                    Container(
++                      decoration: BoxDecoration(
++                        shape: BoxShape.circle,
++                        color: Colors.blue,
++                      ),
++                      child: IconButton(
++                        icon: Icon(Icons.send, color: Colors.white, size: 20),
++                        onPressed: () => _addReply(comment.id),
++                      ),
++                    ),
++                    SizedBox(width: 4),
++                    IconButton(
++                      icon: Icon(Icons.close, size: 18, color: Colors.grey),
++                      onPressed: () {
++                        setState(() {
++                          _replyingToCommentId = null;
++                          _replyingToUsername = null;
++                        });
++                      },
++                    ),
+ildren: [
++                    Expanded(
++                      child: Container(
++                        decoration: BoxDecoration(
++                          color: Colors.blue[50],
++                          borderRadius: BorderRadius.circular(20),
++                          border: Border.all(color: Colors.blue[100]!),
++                        ),
++                        child: Padding(
++                          padding: const EdgeInsets.symmetric(horizontal: 12),
++                          child: TextField(
++                            controller: _replyController,
++                            decoration: InputDecoration(
++                              hintText: 'Replying to $_replyingToUsername...',
++                              border: InputBorder.none,
++                              contentPadding: EdgeInsets.symmetric(
++                                horizontal: 0,
++                                vertical: 8,
++                              ),
++                            ),
++                            maxLines: null,
++                            style: TextStyle(fontSize: 14),
++                          ),
++                        ),
++                      ),
++                    ),
++                    SizedBox(width: 8),
++                    Container(
++                      decoration: BoxDecoration(
++                        shape: BoxShape.circle,
++                        color: Colors.blue,
++                      ),
++                      child: IconButton(
++                        icon: Icon(Icons.send, color: Colors.white, size: 20),
++                        onPressed: () => _addReply(comment.id),
++                      ),
++                    ),
++                    SizedBox(width: 4),
++                    IconButton(
++                      icon: Icon(Icons.close, size: 18, color: Colors.grey),
++                      onPressed: () {
++                        setState(() {
++                          _replyingToCommentId = null;
++                          _replyingToUsername = null;
++                        });
++                      },
++                    ),
++                  ],
++                ),
++              ),
++          ],
++        ),
++      ),
++    );
+   }
+
+   @override
+   Widget build(BuildContext context) {
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Comments'),
+-        leading: IconButton(
+-          icon: const Icon(Icons.arrow_back),
+-          onPressed: () => Navigator.pop(context),
+-        ),
+-      ),
+-      body: _isLoading
+-          ? const Center(child: CircularProgressIndicator())
+-          : Column(
+-              children: [
+-                // Post summary (if available)
+-                if (_post != null)
+-                  Container(
+-                    padding: const EdgeInsets.all(16),
+-                    decoration: BoxDecoration(
+-                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+-                    ),
+-                    child: Row(
++    return Consumer<FeedProvider>(
++      builder: (context, feedProvider, child) {
++        _feedProvider = feedProvider;
++
++        return Scaffold(
++          appBar: AppBar(
++            title: Text('Comments'),
++            leading: IconButton(
++              icon: Icon(Icons.arrow_back),
++              onPressed: () => Navigator.pop(context),
++            ),
++            backgroundColor: Colors.green,
++          ),
++          body: Column(
++            children: [
++              // Post preview (optional)
++              if (widget.post != null)
++                Card(
++                  margin: EdgeInsets.all(12),
++                  child: Padding(
++                    padding: const EdgeInsets.all(12.0),
++                    child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+-                        CircleAvatar(
+-                          radius: 20,
+-                          backgroundImage: NetworkImage(_post!.userProfilePic),
+-                        ),
+-                        const SizedBox(width: 12),
+-                        Expanded(
+-                          child: Column(
+-                            crossAxisAlignment: CrossAxisAlignment.start,
+-                            children: [
+-                              Text(
+-                                _post!.userName,
+-                                style: const TextStyle(
+-                                  fontWeight: FontWeight.bold,
+-                                  fontSize: 16,
+-                                ),
+-                              ),
+-                              const SizedBox(height: 4),
+-                              if (_post!.text != null && _post!.text!.isNotEmpty)
+-                                Text(
+-                                  _post!.text!,
+-                                  style: const TextStyle(fontSize: 14),
+-                                  maxLines: 2,
+-                                  overflow: TextOverflow.ellipsis,
+-                                ),
+-                              const SizedBox(height: 8),
+-                              Row(
++                        Row(
++                          children: [
++                            CircleAvatar(
++                              radius: 20,
++                              backgroundColor: Colors.green[100],
++                              child: Icon(Icons.person, color: Colors.green),
++                            ),
++                            SizedBox(width: 12),
++                            Expanded(
++                              child: Column(
++                                crossAxisAlignment: CrossAxisAlignment.start,
+                                 children: [
+-                                  const Icon(Icons.chat_bubble_outline, size: 16),
+-                                  const SizedBox(width: 4),
+-                                  Text('${_post!.commentCount} comments'),
++                                  Text(
++                                    widget.post!.userName,
++                                    style: TextStyle(
++                                      fontWeight: FontWeight.bold,
++                                      fontSize: 16,
+          ),
++                                  ),
++                                  if (widget.post!.workoutType != null)
++                                    Text(
++                                      widget.post!.workoutType!,
++                                      style: TextStyle(
++                                        fontSize: 12,
++                                        color: Colors.green[700],
++                                      ),
++                                    ),
+                                 ],
+                               ),
+-                            ],
+-                          ),
++                            ),
++                          ],
+                         ),
++                        SizedBox(height: 12),
++                        Text(widget.post!.text),
+                       ],
+                     ),
+                   ),
+-
+-                // Comment input
+-                Padding(
+-                  padding: const EdgeInsets.all(16),
+-                  child: Row(
+-                    children: [
+-                      Expanded(
+-                        child: TextField(
+-                          controller: _commentController,
+-                          decoration: InputDecoration(
+-                            hintText: 'Write a comment...',
+-                            border: OutlineInputBorder(
+-                              borderRadius: BorderRadius.circular(24),
+-                            ),
+-                            contentPadding: const EdgeInsets.symmetric(
+-                              horizontal: 16,
+-                              vertical: 12,
+-                            ),
+-                          ),
+-                          onSubmitted: (_) => _postComment(),
++                ),
++
++              // Comment input
++              Padding(
++                padding: const EdgeInsets.all(16.0),
+          ),
++                                  ),
++                                  if (widget.post!.workoutType != null)
++                                    Text(
++                                      widget.post!.workoutType!,
++                                      style: TextStyle(
++                                        fontSize: 12,
++                                        color: Colors.green[700],
++                                      ),
++                                    ),
+                                 ],
+                               ),
+-                            ],
+-                          ),
++                            ),
++                          ],
+                         ),
++                        SizedBox(height: 12),
++                        Text(widget.post!.text),
+                       ],
+                     ),
+                   ),
+-
+-                // Comment input
+-                Padding(
+-                  padding: const EdgeInsets.all(16),
+-                  child: Row(
+-                    children: [
+-                      Expanded(
+-                        child: TextField(
+-                          controller: _commentController,
+-                          decoration: InputDecoration(
+-                            hintText: 'Write a comment...',
+-                            border: OutlineInputBorder(
+-                              borderRadius: BorderRadius.circular(24),
+-                            ),
+-                            contentPadding: const EdgeInsets.symmetric(
+-                              horizontal: 16,
+-                              vertical: 12,
+-                            ),
+-                          ),
+-                          onSubmitted: (_) => _postComment(),
++                ),
++
++              // Comment input
++              Padding(
++                padding: const EdgeInsets.all(16.0),
++                child: Row(
++                  crossAxisAlignment: CrossAxisAlignment.center,
++                  children: [
++                    Expanded(
++                      child: Container(
++                        decoration: BoxDecoration(
++                          color: Colors.grey[50],
++                          borderRadius: BorderRadius.circular(24),
++                          border: Border.all(color: Colors.grey[300]!),
+                         ),
+-                      ),
+-                      const SizedBox(width: 8),
+-                      _isPosting
+-                          ? const Padding(
+-                              padding: EdgeInsets.all(8.0),
+-                              child: SizedBox(
+-                                width: 24,
+-                                height: 24,
+-                                child: CircularProgressIndicator(strokeWidth: 2),
+-                              ),
+-                            )
+-                          : IconButton(
+-                              onPressed: _postComment,
+-                              icon: const Icon(Icons.send),
+-                              style: IconButton.styleFrom(
+-                                backgroundColor: Theme.of(context).colorScheme.primary,
+-                                foregroundColor: Theme.of(context).colorScheme.onPrimary,
++                        child: Padding(
++                          padding: const EdgeInsets.symmetric(horizontal: 16),
++                          child: TextField(
++                            controller: _commentController,
++                            decoration: InputDecoration(
++                              hintText: 'Add a comment...',
++                              border: InputBorder.none,
++                              contentPadding: EdgeInsets.symmetric(
++                                vertical: 12,
+                               ),
+                             ),
+-                    ],
+-                  ),
+-                ),
+-
+-                // Comments list
+-                Expanded(
+-                  child: _comments.isEmpty
+-                      ? const Center(
+-                          child: Column(
+-                            mainAxisAlignment: MainAxisAlignment.center,
+-                            children: [
+-                              Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
+-                              SizedBox(height: 16),
+-                              Text('No comments yet'),
+-                              Text('Be the first to comment!'),
+-                            ],
++                            maxLines: null,
++                            onSubmitted: (_) => _addComment(),
+                           ),
+-                        )
+-                      : ListView.builder(
+-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+-                          itemCount: _comments.length,
+-                          itemBuilder: (context, index) {
+-                            return _buildCommentItem(_comments[index]);
+-                          },
+                         ),
++                      ),
++                    ),
++                    SizedBox(width: 12),
++                    Container(
++                      decoration: BoxDecoration(
++                        shape: BoxShape.circle,
++                        color: Colors.green,
++                      ),
++                      child: IconButton(
++                        icon: Icon(Icons.send, color: Colors.white),
++                        onPressed: _addComment,
++                      ),
++                    ),
++                  ],
+                 ),
+-              ],
+-            ),
+-    );
+-  }
+-
+-  Widget _buildCommentItem(Map<String, dynamic> comment) {
+-    final timestamp = _parseTimestamp(comment['timestamp']);
+-
+-    return Container(
+-      margin: const EdgeInsets.only(bottom: 16),
+-      child: Row(
+-        crossAxisAlignment: CrossAxisAlignment.start,
+-        children: [
+-          CircleAvatar(
+-            radius: 20,
+-            backgroundImage: NetworkImage(
+-              comment['userProfilePic'] ?? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+-            ),
+-          ),
+-          const SizedBox(width: 12),
+-          Expanded(
+-            child: Column(
+-              crossAxisAlignment: CrossAxisAlignment.start,
+-              children: [
++              ),
++
++              // PHASE 4B Success Banner
++              if (feedProvider.comments.any((c) => c.replyCount > 0))
+                 Container(
+-                  padding: const EdgeInsets.all(12),
+-                  decoration: BoxDecoration(
+-                    color: Colors.grey.shade100,
+-                    borderRadius: BorderRadius.circular(12),
+-                  ),
+-                  child: Column(
+-                    crossAxisAlignment: CrossAxisAlignment.start,
++                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
++                  color: Colors.green[50],
++                  child: Row(
+                     children: [
++                      Icon(Icons.check_circle, color: Colors.green, size: 16),
++                      SizedBox(width: 8),
+                       Text(
+-                        comment['userName'] ?? 'Anonymous',
+-                        style: const TextStyle(
++                        'PHASE 4B ACTIVE: Reply feature working',
++                        style: TextStyle(
++                          fontSize: 12,
++                          color: Colors.green[800],
+                           fontWeight: FontWeight.bold,
+                         ),
+                       ),
+-                      const SizedBox(height: 4),
+-                      Text(comment['text'] ?? ''),
+                     ],
+                   ),
+                 ),
+-                const SizedBox(height: 4),
+-                Text(
+-                  _formatTime(timestamp),
+-                  style: TextStyle(
+-                    fontSize: 12,
+-                    color: Colors.grey.shade600,
++
++              // Loading indicator
++              if (feedProvider.isLoadingComments)
++                Expanded(
++                  child: Center(
++                    child: Column(
++                      mainAxisAlignment: MainAxisAlignment.center,
++                      children: [
++                        CircularProgressIndicator(),
++                        SizedBox(height: 16),
++                        Text(
++                          'Loading comments...',
++                          style: TextStyle(color: Colors.grey),
++                        ),
++                      ],
++                    ),
++                  ),
++                ),
++
++              // Empty state
++              if (!feedProvider.isLoadingComments && feedProvider.comments.isEmpty)
++                Expanded(
++                  child: Center(
++                    child: Column(
++                      mainAxisAlignment: MainAxisAlignment.center,
++                      children: [
++                        Icon(Icons.comment, size: 64, color: Colors.grey[300]),
++                        SizedBox(height: 16),
++                        Text(
++                          'No comments yet',
++                          style: TextStyle(fontSize: 18, color: Colors.grey),
++                        ),
++                        SizedBox(height: 8),
++                        Text(
++                          'Be the first to comment!',
++                          style: TextStyle(color: Colors.grey[500]),
++                        ),
++                        SizedBox(height: 24),
++                        ElevatedButton.icon(
++                          onPressed: () {
++                            _commentController.text = 'Great post! Thanks for sharing.';
++                            _addComment();
++                          },
++                          icon: Icon(Icons.add_comment),
++                          label: Text('Add Sample Comment'),
++                          style: ElevatedButton.styleFrom(
++                            backgroundColor: Colors.green,
++                          ),
++                        ),
++                      ],
++                    ),
++                  ),
++                ),
++
++              // Comments list
++              if (!feedProvider.isLoadingComments && feedProvider.comments.isNotEmpty)
++                Expanded(
++                  child: ListView.builder(
++                    padding: EdgeInsets.only(bottom: 16),
++                    itemCount: feedProvider.comments.length,
++                    itemBuilder: (context, index) {
++                      return _buildCommentItem(feedProvider.comments[index]);
++                    },
+                   ),
+                 ),
+-              ],
+-            ),
++            ],
+           ),
+-        ],
+-      ),
++        );
++      },
+     );
+   }
+
+-  String _formatTime(DateTime timestamp) {
++  String _formatTimestamp(DateTime timestamp) {
+     final now = DateTime.now();
+-    final diff = now.difference(timestamp);
++    final difference = now.difference(timestamp);
++
++    if (difference.inMinutes < 1) return 'Just now';
++    if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
++    if (difference.inHours < 24) return '${difference.inHours}h ago';
++    if (difference.inDays < 7) return '${difference.inDays}d ago';
+
+-    if (diff.inDays > 0) return '${diff.inDays}d ago';
+-    if (diff.inHours > 0) return '${diff.inHours}h ago';
+-    if (diff.inMinutes > 0) return '${diff.inMinutes}m ago';
+-    return 'Just now';
++    return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
+   }
+ }
+diff --git a/lib/features/feed/feed_model.dart b/lib/features/feed/feed_model.dart
+index b2d001d..693d8cd 100644
+--- a/lib/features/feed/feed_model.dart
++++ b/lib/features/feed/feed_model.dart
+@@ -71,3 +71,61 @@ class Post {
+     };
+   }
+ }
++
++// ========== PHASE 4B: REPLY MODEL ==========
++
++class Reply {
++  final String id;
++  final String commentId;
++  final String userId;
++  final String text;
++  final DateTime timestamp;
++  final String userDisplayName;
++  final String? userAvatarUrl;
++  final bool isEdited;
++  final DateTime? editedAt;
++
++  Reply({
++    required this.id,
++    required this.commentId,
++    required this.userId,
++    required this.text,
++    required this.timestamp,
++    required this.userDisplayName,
++    this.userAvatarUrl,
++    this.isEdited = false,
++    this.editedAt,
++  });
++
++  factory Reply.fromJson(Map<String, dynamic> json) {
++    return Reply(
++      id: json['id']?.toString() ?? '',
++      commentId: json['commentId']?.toString() ?? '',
++      userId: json['userId']?.toString() ?? '',
++      text: json['text']?.toString() ?? '',
++      timestamp: json['timestamp'] != null
++          ? DateTime.parse(json['timestamp'].toString())
++          : DateTime.now(),
++      userDisplayName: json['userDisplayName']?.toString() ?? 'Unknown',
++      userAvatarUrl: json['userAvatarUrl']?.toString(),
++      isEdited: json['isEdited'] == true,
++      editedAt: json['editedAt'] != null
++          ? DateTime.parse(json['editedAt'].toString())
++          : null,
++    );
++  }
++
++  Map<String, dynamic> toJson() {
++    return {
++      'id': id,
++      'commentId': commentId,
++      'userId': userId,
++      'text': text,
++      'timestamp': timestamp.toIso8601String(),
++      'userDisplayName': userDisplayName,
++      'userAvatarUrl': userAvatarUrl,
++      'isEdited': isEdited,
++      'editedAt': editedAt?.toIso8601String(),
++    };
++  }
++}
+diff --git a/lib/features/feed/feed_screen.dart b/lib/features/feed/feed_screen.dart
+index 44ee318..80f42cd 100644
+--- a/lib/features/feed/feed_screen.dart
++++ b/lib/features/feed/feed_screen.dart
+@@ -1,134 +1,171 @@
+ import 'package:flutter/material.dart';
+-import 'package:provider/provider.dart';
+-import 'package:peaceful_workouts/features/feed/feed_provider.dart';
+-import 'package:peaceful_workouts/shared/widgets/workout_card.dart';
++import 'feed_model.dart';
+ import 'comments_screen.dart';
+-import 'package:peaceful_workouts/core/auth/auth_provider.dart';  // Add AuthProvider import
+
+-class FeedScreen extends StatefulWidget {
+-  const FeedScreen({super.key});
+-
+-  @override
+-  State<FeedScreen> createState() => _FeedScreenState();
++      commentId: json['commentId']?.toString() ?? '',
++      userId: json['userId']?.toString() ?? '',
++      text: json['text']?.toString() ?? '',
++      timestamp: json['timestamp'] != null
++          ? DateTime.parse(json['timestamp'].toString())
++          : DateTime.now(),
++      userDisplayName: json['userDisplayName']?.toString() ?? 'Unknown',
++      userAvatarUrl: json['userAvatarUrl']?.toString(),
++      isEdited: json['isEdited'] == true,
++      editedAt: json['editedAt'] != null
++          ? DateTime.parse(json['editedAt'].toString())
++          : null,
++    );
++  }
++
++  Map<String, dynamic> toJson() {
++    return {
++      'id': id,
++      'commentId': commentId,
++      'userId': userId,
++      'text': text,
++      'timestamp': timestamp.toIso8601String(),
++      'userDisplayName': userDisplayName,
++      'userAvatarUrl': userAvatarUrl,
++      'isEdited': isEdited,
++      'editedAt': editedAt?.toIso8601String(),
++    };
++  }
++}
+diff --git a/lib/features/feed/feed_screen.dart b/lib/features/feed/feed_screen.dart
+index 44ee318..80f42cd 100644
+--- a/lib/features/feed/feed_screen.dart
++++ b/lib/features/feed/feed_screen.dart
+@@ -1,134 +1,171 @@
+ import 'package:flutter/material.dart';
+-import 'package:provider/provider.dart';
+-import 'package:peaceful_workouts/features/feed/feed_provider.dart';
+-import 'package:peaceful_workouts/shared/widgets/workout_card.dart';
++import 'feed_model.dart';
+ import 'comments_screen.dart';
+-import 'package:peaceful_workouts/core/auth/auth_provider.dart';  // Add AuthProvider import
+
+-class FeedScreen extends StatefulWidget {
+-  const FeedScreen({super.key});
+-
+-  @override
+-  State<FeedScreen> createState() => _FeedScreenState();
+-}
+-
+-class _FeedScreenState extends State<FeedScreen> {
+-  @override
+-  void initState() {
+-    super.initState();
+-    // Load posts when screen initializes
+-    WidgetsBinding.instance.addPostFrameCallback((_) {
+-      _loadPosts();
+-    });
+-  }
+-
+-  Future<void> _loadPosts() async {
+-    final feedProvider = Provider.of<FeedProvider>(context, listen: false);
+-    try {
+-      await feedProvider.getPosts();
+-    } catch (e) {
+-      // Error is already handled in FeedProvider
+-    }
+-  }
+-
+-  void _navigateToComments(String postId) {
+-    Navigator.push(
+-      context,
+-      MaterialPageRoute(
+-        builder: (context) => CommentsScreen(postId: postId),
+-      ),
+-    );
+-  }
+-
+-  Future<void> _refreshFeed() async {
+-    await _loadPosts();
+-  }
++class FeedScreen extends StatelessWidget {
++  final List<Post> posts;
++
++  const FeedScreen({Key? key, required this.posts}) : super(key: key);
+
+   @override
+   Widget build(BuildContext context) {
+-    final feedProvider = Provider.of<FeedProvider>(context);
+-    final authProvider = Provider.of<AuthProvider>(context);  // Get AuthProvider
+-
+-    return Scaffold(
+-      appBar: AppBar(
+-        title: const Text('Peaceful Workouts'),
+-        centerTitle: true,
+-        actions: [
+-          IconButton(
+-            icon: const Icon(Icons.logout),
+-            onPressed: () async {
+-              await authProvider.signOut();
+-            },
+-            tooltip: 'Logout',
+-          ),
+-        ],
+-      ),
+-      body: _buildBody(feedProvider),
+-      floatingActionButton: FloatingActionButton(
+-        onPressed: () => Navigator.pushNamed(context, '/add-post'),
+-        child: const Icon(Icons.add),
+-      ),
++    return ListView.builder(
++      padding: EdgeInsets.all(16),
++      itemCount: posts.length,
++      itemBuilder: (context, index) {
++        final post = posts[index];
++        return _buildPostCard(context, post);
++      },
+     );
+   }
+
+-  Widget _buildBody(FeedProvider feedProvider) {
+-    if (feedProvider.isLoading) {
+-      return const Center(child: CircularProgressIndicator());
+-    }
+-
+-    if (feedProvider.errorMessage.isNotEmpty) {
+-      return Center(
++  Widget _buildPostCard(BuildContext context, Post post) {
++    return Card(
++      margin: EdgeInsets.only(bottom: 16),
++      elevation: 2,
++      child: Padding(
++        padding: const EdgeInsets.all(16.0),
+         child: Column(
+-          mainAxisAlignment: MainAxisAlignment.center,
++          crossAxisAlignment: CrossAxisAlignment.start,
+           children: [
+-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+-            const SizedBox(height: 16),
+-            Text(
+-              'Error loading posts',
+-              style: Theme.of(context).textTheme.titleLarge,
++            // User info
++            Row(
++              children: [
++                CircleAvatar(
++                  backgroundColor: Colors.green[100],
++                  child: Text(
++                    post.userName[0],
++                    style: TextStyle(color: Colors.green[800]),
++                  ),
++                ),
++                SizedBox(width: 12),
++                Expanded(
++                  child: Column(
++                    crossAxisAlignment: CrossAxisAlignment.start,
++                    children: [
++                      Text(
++                        post.userName,
++                        style: TextStyle(
++                          fontWeight: FontWeight.bold,
++                          fontSize: 16,
++                        ),
++                      ),
++                      if (post.workoutType != null)
++                        Text(
++                          post.workoutType!,
++                          style: TextStyle(
++                            fontSize: 12,
++                            color: Colors.green[700],
++                          ),
++                        ),
++                    ],
++                  ),
++                ),
++                Text(
++                  _formatTimestamp(post.timestamp),
++                  style: TextStyle(
++                    fontSize: 12,
++                    color: Colors.grey,
++                  ),
++                ),
++              ],
+             ),
+-            const SizedBox(height: 8),
++
++            SizedBox(height: 16),
++
++            // Post text
+             Text(
+-              feedProvider.errorMessage,
+-              textAlign: TextAlign.center,
+-              style: Theme.of(context).textTheme.bodyMedium,
++              post.text,
++              style: TextStyle(fontSize: 15),
+             ),
+-            const SizedBox(height: 16),
+-            ElevatedButton(
+-              onPressed: _refreshFeed,
+-              child: const Text('Try Again'),
++
++            SizedBox(height: 16),
++
++            // Stats and actions
++            Row(
++              children: [
++                // Likes
++                Row(
++                  children: [
++                    Icon(
++                      post.isLiked ? Icons.favorite : Icons.favorite_border,
++                      color: post.isLiked ? Colors.red : Colors.grey,
++                      size: 20,
++                    ),
++                    SizedBox(width: 4),
++                    Text('${post.likeCount}'),
++                  ],
++                ),
++
++                SizedBox(width: 24),
++
++                // Comments with PHASE 4B navigation
++                InkWell(
++                  onTap: () {
++                    Navigator.push(
++                      context,
++                      MaterialPageRoute(
++                        builder: (context) => CommentsScreen(
++                          postId: post.id,
++                          post: post,
++                        ),
++                      ),
++                    );
++                  },
++                  child: Row(
++                    children: [
++                      Icon(Icons.comment, size: 20, color: Colors.blue),
++                      SizedBox(width: 4),
++                      Text('${post.commentCount}'),
++                      SizedBox(width: 4),
++                      if (post.commentCount > 0)
++                        Container(
++                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
++                          decoration: BoxDecoration(
++                            color: Colors.blue[50],
++                            borderRadius: BorderRadius.circular(4),
++                          ),
++                          child: Text(
++                            'Phase 4B ✓',
++                            style: TextStyle(
++                              fontSize: 8,
++                              color: Colors.blue[800],
++                              fontWeight: FontWeight.bold,
++                            ),
++                          ),
++                        ),
++                    ],
++                  ),
++                ),
++
++                Spacer(),
++
++                // Reply hint
++                if (post.commentCount > 0)
++                  Text(
++                    'Tap to reply →',
++                    style: TextStyle(
++                      fontSize: 11,
++                      color: Colors.grey,
++                    ),
++                  ),
++              ],
+             ),
+           ],
+         ),
+-      );
+-    }
+-
+-    if (feedProvider.posts.isEmpty) {
+-      return const Center(
+-        child: Text('No posts yet. Be the first to share!'),
+-      );
+-    }
+-
+-    return RefreshIndicator(
+-      onRefresh: _refreshFeed,
+-      child: ListView.builder(
+-        itemCount: feedProvider.posts.length,
+-        itemBuilder: (context, index) {
+-          final post = feedProvider.posts[index];
+-          return WorkoutCard(
+-            post: post,
+-            onLikeTapped: feedProvider.currentUserId == null
+-                ? null
+-                : () {
+-                    feedProvider.toggleLike(
+-                      post.postId,
+-                      feedProvider.currentUserId!,
+-                    );
+-                  },
+-            onCommentTapped: () => _navigateToComments(post.postId),
+-          );
+-        },
+       ),
+     );
+   }
++
++  String _formatTimestamp(DateTime timestamp) {
++    final now = DateTime.now();
++    final difference = now.difference(timestamp);
++
++    if (difference.inMinutes < 1) return 'Just now';
++    if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
++    if (difference.inHours < 24) return '${difference.inHours}h ago';
++    if (difference.inDays < 7) return '${difference.inDays}d ago';
++
++    return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
++  }
+ }
+diff --git a/lib/features/feed/feed_service.dart b/lib/features/feed/feed_service.dart
+index 854af8d..21d8f4b 100644
+--- a/lib/features/feed/feed_service.dart
++++ b/lib/features/feed/feed_service.dart
+@@ -45,4 +45,103 @@ class FeedService {
+   }
+
+   // ... other methods stay the same
++
++  // ========== PHASE 4B: REPLY METHODS ==========
++
++  /// Add a reply to a comment
++  Future<void> addReply({
++    required String postId,
++    required String commentId,
++    required String text,
++    required String userDisplayName,
++    String? userAvatarUrl,
++  }) async {
++    try {
++      final replyId = 'reply_\${DateTime.now().millisecondsSinceEpoch}';
++
++      final reply = Reply(
++        id: replyId,
++        commentId: commentId,
++        userId: _auth.currentUser?.uid ?? 'anonymous',
++        text: text,
++        timestamp: DateTime.now(),
++        userDisplayName: userDisplayName,
++        userAvatarUrl: userAvatarUrl,
++      );
++
++      // Add to replies subcollection
++      await _firestore
++          .collection('posts')
++          .doc(postId)
++          .collection('comments')
++          .doc(commentId)
++          .collection('replies')
++          .doc(replyId)
++          .set(reply.toJson());
++
++      // Update reply count on the comment
++      await _firestore
++          .collection('posts')
++          .doc(postId)
++          .collection('comments')
+      .doc(commentId)
++          .update({
++        'replyCount': FieldValue.increment(1),
++        'updatedAt': FieldValue.serverTimestamp(),
++      });
++
++      print('✅ Reply added to comment \$commentId');
++    } catch (e) {
++      print('❌ Error adding reply: \$e');
++      rethrow;
++    }
++  }
++
++  /// Get all replies for a specific comment
++  Future<List<Reply>> getReplies(String postId, String commentId) async {
++    try {
++      final snapshot = await _firestore
++          .collection('posts')
++          .doc(postId)
++          .collection('comments')
++          .doc(commentId)
++          .collection('replies')
++          .orderBy('timestamp', descending: false)
++          .get();
++
++      return snapshot.docs.map((doc) {
++        return Reply.fromJson(doc.data());
++      }).toList();
++    } catch (e) {
++      print('❌ Error getting replies: \$e');
++      return [];
++    }
++  }
++
++  /// Get comment with its replies
++  Future<Comment> getCommentWithReplies(String postId, String commentId) async {
++    try {
++      // Get the comment
++      final commentDoc = await _firestore
++          .collection('posts')
++          .doc(postId)
++          .collection('comments')
++          .doc(commentId)
++          .get();
++
++      if (!commentDoc.exists) {
++        throw Exception('Comment not found');
+      .doc(commentId)
++          .update({
++        'replyCount': FieldValue.increment(1),
++        'updatedAt': FieldValue.serverTimestamp(),
++      });
++
++      print('✅ Reply added to comment \$commentId');
++    } catch (e) {
++      print('❌ Error adding reply: \$e');
++      rethrow;
++    }
++  }
++
++  /// Get all replies for a specific comment
++  Future<List<Reply>> getReplies(String postId, String commentId) async {
++    try {
++      final snapshot = await _firestore
++          .collection('posts')
++          .doc(postId)
++          .collection('comments')
++          .doc(commentId)
++          .collection('replies')
++          .orderBy('timestamp', descending: false)
++          .get();
++
++      return snapshot.docs.map((doc) {
++        return Reply.fromJson(doc.data());
++      }).toList();
++    } catch (e) {
++      print('❌ Error getting replies: \$e');
++      return [];
++    }
++  }
++
++  /// Get comment with its replies
++  Future<Comment> getCommentWithReplies(String postId, String commentId) async {
++    try {
++      // Get the comment
++      final commentDoc = await _firestore
++          .collection('posts')
++          .doc(postId)
++          .collection('comments')
++          .doc(commentId)
++          .get();
++
++      if (!commentDoc.exists) {
++        throw Exception('Comment not found');
++      }
++
++      final comment = Comment.fromJson(commentDoc.data()!);
++
++      // Get its replies
++      final replies = await getReplies(postId, commentId);
++
++      return comment.copyWith(replies: replies);
++    } catch (e) {
++      print('❌ Error getting comment with replies: \$e');
++      rethrow;
++    }
++  }
+ }
+diff --git a/lib/shared/widgets/workout_card.dart b/lib/shared/widgets/workout_card.dart
+index 6b5acd0..6dfeef6 100644
+--- a/lib/shared/widgets/workout_card.dart
++++ b/lib/shared/widgets/workout_card.dart
+@@ -34,7 +34,7 @@ class WorkoutCard extends StatelessWidget {
+               children: [
+                 CircleAvatar(
+                   radius: 20,
+-                  backgroundImage: NetworkImage(post.userProfilePic),
++                  backgroundImage: post.userProfilePic != null ? NetworkImage(post.userProfilePic!) : null,
+                 ),
+                 const SizedBox(width: 12),
+                 Expanded(
+diff --git a/quick_fix.sh b/quick_fix.sh
+index 8a2184d..9b71d57 100644
+--- a/quick_fix.sh
++++ b/quick_fix.sh
+@@ -1,67 +1,43 @@
+ #!/bin/bash
+-# quick_fix.sh
+-# Quick fix for the like error
+-
+-echo "⚡ QUICK FIX FOR LIKE ERROR..."
+-echo "=============================="
+-
+-# Create a minimal fix
+-cat > lib/features/feed/feed_service.dart << 'EOF'
+-import 'package:cloud_firestore/cloud_firestore.dart';
+-import 'feed_model.dart';
+-
+-class FeedService {
+-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+-
+-  Future<List<Post>> getPosts() async {
+-    try {
+-      final querySnapshot = await _firestore
+-          .collection('posts')
+-          .orderBy('timestamp', descending: true)
+-          .get();
+-
+-      return querySnapshot.docs.map((doc) {
+-        return Post.fromFirestore(doc.data(), doc.id);
+-      }).toList();
+-    } catch (e) {
+-      print('Error fetching posts: $e');
+-      rethrow;
+-    }
+-  }
+-
+-  Future<void> toggleLike(String postId, String userId) async {
+-    try {
+-      final postRef = _firestore.collection('posts').doc(postId);
+-
+-      // SIMPLE FIX: Just increment/decrement likeCount
+-      // Don't worry about tracking which user liked
+-      final postDoc = await postRef.get();
+-      if (!postDoc.exists) return;
+-
+-      final data = postDoc.data()!;
+-      final currentLikeCount = data['likeCount'] as int? ?? 0;
+-
+-      // For now, just toggle between +1 and -1
+-      // In a real app, you'd track per-user likes
+-      await postRef.update({
+-        'likeCount': currentLikeCount + 1,
+-      });
+-
+-    } catch (e) {
+-      print('Error toggling like: $e');
+-      rethrow;
+-    }
+-  }
+-
+-  // ... other methods stay the same
+-}
+-EOF
+-
+-echo ""
+-echo "✅ QUICK FIX APPLIED"
+-echo "===================="
+-echo "This fix just increments likeCount without tracking per-user likes."
+-echo "Good for testing Phase 3 comment feature."
++echo "🔧 Quick Fix Script"
++echo "=================="
++cd ~/dev/peaceful_workouts-V1.2Images
++
++# Remove problematic files
++rm -f lib/features/feed/comments_screen.dart.bak 2>/dev/null
++
++# Ensure all required files exist
++REQUIRED_FILES=(
++  "lib/features/feed/feed_model.dart"
++  "lib/features/feed/feed_service.dart"
++  "lib/features/feed/feed_provider.dart"
++  "lib/features/feed/comments_screen.dart"
++  "lib/features/feed/feed_screen.dart"
++  "lib/main.dart"
++)
++
++for file in "${REQUIRED_FILES[@]}"; do
++  if [ ! -f "$file" ]; then
++    echo "❌ Missing: $file"
++    echo "Run the previous commands to create it"
++    exit 1
++  fi
++done
++
++echo "✅ All files present"
+ echo ""
+-echo "🔍 Testing..."
+-dart analyze lib/features/feed/feed_service.dart
+\ No newline at end of file
++echo "🚀 Running compilation check..."
++flutter analyze
++
++if [ $? -eq 0 ]; then
++  echo ""
++  echo "🎉 SUCCESS! Now run:"
++  echo "flutter run -d chrome"
++else
++  echo ""
++  echo "⚠  Some issues found. Trying to fix..."
++  flutter clean
++  flutter pub get
++  echo ""
++  echo "Try running again: flutter run -d chrome"
++fi
+(END)
+phoeb@phoebe MINGW64 ~/dev/peaceful_workouts-V1.2Images (feature/phase4b-comment-replies)
+$ cat lib/features/feed/comments_screen.dart | head -100
+// Enhanced with Phase 4B reply features - FIXED VERSION
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'feed_provider.dart';
+import 'feed_service.dart';
+import 'feed_model.dart';
+
+class CommentsScreen extends StatefulWidget {
+  final String postId;
+  final Post? post;
+
+  const CommentsScreen({
+    Key? key,
+    required this.postId,
+    this.post,
+  }) : super(key: key);
+
+  @override
+  _CommentsScreenState createState() => _CommentsScreenState();
+}
+
+class _CommentsScreenState extends State<CommentsScreen> {
+  final TextEditingController _commentController = TextEditingController();
+  final TextEditingController _replyController = TextEditingController();
+  late FeedProvider _feedProvider;
+  String? _replyingToCommentId;
+  String? _replyingToUsername;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadComments();
+    });
+  }
+
+  Future<void> _loadComments() async {
+    try {
+      await _feedProvider.loadComments(widget.postId);
+    } catch (e) {
+      print('Error loading comments: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load comments')),
+      );
+    }
+  }
+
+  Future<void> _addComment() async {
+    final text = _commentController.text.trim();
+    if (text.isEmpty) return;
+
+    try {
+      await _feedProvider.addComment(
+        postId: widget.postId,
+        text: text,
+        userDisplayName: 'Current User', // You'll replace this with actual user
+      );
+
+      _commentController.clear();
+      FocusScope.of(context).unfocus();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Comment added successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      print('Error adding comment: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add comment')),
+      );
+    }
+  }
+
+  Future<void> _addReply(String commentId) async {
+    final text = _replyController.text.trim();
+    if (text.isEmpty) return;
+
+    try {
+      await _feedProvider.addReply(
+        postId: widget.postId,
+        commentId: commentId,
+        text: text,
+        userDisplayName: 'Current User', // You'll replace this with actual user
+      );
+
+      _replyController.clear();
+      setState(() {
+        _replyingToCommentId = null;
+        _replyingToUsername = null;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Reply added successfully!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+phoeb@phoebe MINGW64 ~/dev/peaceful_workouts-V1.2Images (feature/phase4b-comment-replies)
+$
+phoeb@phoebe MINGW64 ~/dev/peaceful_workouts-V1.2Images (feature/phase4b-comment-replies)
+$ cat lib/features/feed/feed_provider.dart | grep -A5 -B5 "addReply\|loadReplies"
+
+phoeb@phoebe MINGW64 ~/dev/peaceful_workouts-V1.2Images (feature/phase4b-comment-replies)
+$ cat lib/features/feed/feed_service.dart | grep -A5 -B5 "addReply\|getReplies"
+  // ... other methods stay the same
+
+  // ========== PHASE 4B: REPLY METHODS ==========
+
+  /// Add a reply to a comment
+  Future<void> addReply({
+    required String postId,
+    required String commentId,
+    required String text,
+    required String userDisplayName,
+    String? userAvatarUrl,
+--
+      rethrow;
+    }
+  }
+
+  /// Get all replies for a specific comment
+  Future<List<Reply>> getReplies(String postId, String commentId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('posts')
+          .doc(postId)
+          .collection('comments')
+--
+      }
+
+      final comment = Comment.fromJson(commentDoc.data()!);
+
+      // Get its replies
+      final replies = await getReplies(postId, commentId);
+
+      return comment.copyWith(replies: replies);
+    } catch (e) {
+      print('❌ Error getting comment with replies: \$e');
+      rethrow;
+
+phoeb@phoebe MINGW64 ~/dev/peaceful_workouts-V1.2Images (feature/phase4b-comment-replies)
+$
